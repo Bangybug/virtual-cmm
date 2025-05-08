@@ -3,6 +3,7 @@ import Nav from 'react-bootstrap/esm/Nav';
 import Navbar from 'react-bootstrap/esm/Navbar';
 import NavDropdown from 'react-bootstrap/esm/NavDropdown';
 import { Scene } from './scene/scene';
+import { MeshFile } from './mesh/mesh-file';
 
 function App() {
 
@@ -30,7 +31,11 @@ function App() {
         </Navbar>
       </header>
       <main className="w-100 d-flex align-items-stretch flex-grow-1">
-        <Scene />
+        <Scene>
+          <MeshFile fileType={'stl'} url='spoon.stl'>
+            <meshStandardMaterial />
+          </MeshFile>
+        </Scene>
       </main >
     </>
   )

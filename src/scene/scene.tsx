@@ -17,13 +17,13 @@ export const Scene = (props: PropsWithChildren) => {
     <OrthographicCamera
       makeDefault
       position={[0, 0, 1000]}
-      zoom={600}
+      zoom={6000}
     >
       <object3D rotation={[0.0, 0.4, 0.4]}>
         <directionalLight
-          intensity={0.5}
+          intensity={0.4}
           color={VIEWER_LIGHT_COLOR}
-          position={[0, -200, 1000]}
+          position={[0, -200, 100]}
         />
       </object3D>
     </OrthographicCamera>
@@ -32,15 +32,15 @@ export const Scene = (props: PropsWithChildren) => {
       color={VIEWER_LIGHT_COLOR}
       groundColor={VIEWER_BOTTOM_SHADE_COLOR}
       position={[-7, 25, 13]}
-      intensity={0.2}
+      intensity={0.7}
     />
 
     <OrbitControls enablePan={false} />
 
-    <mesh>
+    {/* <mesh>
       <boxGeometry />
       <meshStandardMaterial />
-    </mesh>
+    </mesh> */}
 
   </Canvas>)
 
