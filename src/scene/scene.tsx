@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber"
 import { VIEWER_BOTTOM_SHADE_COLOR, VIEWER_CLEAR_COLOR, VIEWER_LIGHT_COLOR } from "./colors"
 import { PropsWithChildren } from "react"
-import { OrbitControls, OrthographicCamera } from "@react-three/drei"
+import { GizmoHelper, GizmoViewcube, OrbitControls, OrthographicCamera } from "@react-three/drei"
 
 export const Scene = (props: PropsWithChildren) => {
   return (<Canvas
@@ -37,10 +37,12 @@ export const Scene = (props: PropsWithChildren) => {
 
     <OrbitControls enablePan={false} />
 
-    {/* <mesh>
-      <boxGeometry />
-      <meshStandardMaterial />
-    </mesh> */}
+    <GizmoHelper
+      alignment="bottom-right"
+      margin={[80, 80]}
+    >
+      <GizmoViewcube />
+    </GizmoHelper>
 
   </Canvas>)
 

@@ -1,8 +1,7 @@
-/* eslint-disable react/no-unknown-property */
 import { PropsWithChildren, RefObject, useEffect, useRef } from 'react'
 import { useLoader } from '@react-three/fiber'
 import { BufferGeometry, Matrix4, Mesh } from 'three'
-import { useFileLoader } from '../hooks/useFileLoader'
+import { useFileLoader } from '../hooks/use-file-loader'
 import { LOADER_ARRAYBUFFER_PROTOS, LOADER_URL_PROTOS } from '../loaders/loaders'
 
 export type TOnLoadProps<T = Mesh> = { mesh: T; props: IModelProps<T> }
@@ -13,7 +12,7 @@ export interface IModelProps<T = Mesh> {
   fileType: TSupportedModels
   url?: string
   file?: File
-  meshRef?: RefObject<T | undefined>
+  meshRef?: RefObject<T | null>
   matrix?: Matrix4
   onLoad?: (props: TOnLoadProps<T>) => void
   isHidden?: boolean

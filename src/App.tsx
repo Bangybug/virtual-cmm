@@ -3,7 +3,8 @@ import Nav from 'react-bootstrap/esm/Nav';
 import Navbar from 'react-bootstrap/esm/Navbar';
 import NavDropdown from 'react-bootstrap/esm/NavDropdown';
 import { Scene } from './scene/scene';
-import { MeshFile } from './mesh/mesh-file';
+import { SurfaceContextProvider } from './surface/surface-context-provider';
+import { MeshSurface } from './surface/mesh-surface';
 
 function App() {
 
@@ -32,9 +33,15 @@ function App() {
       </header>
       <main className="w-100 d-flex align-items-stretch flex-grow-1">
         <Scene>
-          <MeshFile fileType={'stl'} url='spoon.stl'>
-            <meshStandardMaterial />
-          </MeshFile>
+          <SurfaceContextProvider>
+            <MeshSurface surfaceKey={'scan'} fileType={'stl'} url='spoon.stl'>
+              <meshStandardMaterial
+                roughness={0.3}
+                metalness={0.2}
+                emissive={'#222222'}
+                emissiveIntensity={0.5} />
+            </MeshSurface>
+          </SurfaceContextProvider>
         </Scene>
       </main >
     </>

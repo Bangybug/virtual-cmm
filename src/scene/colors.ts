@@ -1,4 +1,4 @@
-export const VIEWER_CLEAR_COLOR = '#77787b'
+export const VIEWER_CLEAR_COLOR = '#66676a'
 
 export const VIEWER_LIGHT_COLOR = '#ffffff'
 
