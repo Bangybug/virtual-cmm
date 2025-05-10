@@ -5,6 +5,8 @@ import NavDropdown from 'react-bootstrap/esm/NavDropdown';
 import { Scene } from './scene/scene';
 import { SurfaceContextProvider } from './surface/surface-context-provider';
 import { MeshSurface } from './surface/mesh-surface';
+import { ButtonGroup } from 'react-bootstrap';
+import { ToolButtons } from './tool-buttons';
 
 function App() {
 
@@ -28,7 +30,13 @@ function App() {
                 </NavDropdown.Item>
               </NavDropdown>
             </Nav>
+
+            <ButtonGroup className="mb-2">
+              <ToolButtons />
+            </ButtonGroup>
           </Navbar.Collapse>
+
+
         </Navbar>
       </header>
       <main className="w-100 d-flex align-items-stretch flex-grow-1">

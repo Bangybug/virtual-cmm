@@ -1,8 +1,10 @@
 import { BufferGeometry, Material, Mesh } from "three"
 import { IModelProps, MeshFile } from "../mesh/mesh-file"
-import { PropsWithChildren, useContext, useEffect, useRef } from "react"
+import { PropsWithChildren, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useBVH } from "../hooks/use-bvh"
 import { surfaceContext } from "./contexts"
+import { TDisplayMode } from "./types"
+import { SharedGeometryModel } from "../renderables/shared-geometry"
 
 type TMesh = Mesh<BufferGeometry, Material>
 
@@ -21,6 +23,8 @@ export const MeshSurface: React.FC<
 
     const surfaceContextInstance = useContext(surfaceContext)
 
+    const [showWireframe, setShowWireframe] = useState(false)
+
     useEffect(() => {
       const mesh = renderableMesh.current
       if (mesh) {
@@ -34,11 +38,18 @@ export const MeshSurface: React.FC<
           source: restProps.url!
         })
 
+        const onShow = (m: TDisplayMode) => {
+          setShowWireframe(m.showWireframe)
+        }
+
+        surfaceContextInstance.addEventListener('displayMode', onShow)
+
         return () => {
           surfaceContextInstance.unregisterSurface(
             surfaceKey,
             mesh
           )
+          surfaceContextInstance.removeEventListener('displayMode', onShow)
         }
       }
     }, [renderableMesh.current, surfaceContextInstance, surfaceKey])
@@ -49,11 +60,24 @@ export const MeshSurface: React.FC<
       isDisposeOnUnmount: true,
     })
 
+    const wireframe = useMemo(() => {
+      if (renderableMesh.current && showWireframe) {
+        const { geometry } = renderableMesh.current
+        const sharedGeometryModel = new SharedGeometryModel({ isWireframe: true })
+        sharedGeometryModel.setSourceGeometry(geometry)
+        return sharedGeometryModel
+      }
+
+      return undefined
+    }, [showWireframe])
+
+
     return <MeshFile<TMesh>
       {...restProps}
       {...surfaceContextInstance.mouseEvents}
       meshRef={renderableMesh}
     >
       {children}
+      {wireframe && <primitive visible={showWireframe} object={wireframe.mesh} />}
     </MeshFile >
   }

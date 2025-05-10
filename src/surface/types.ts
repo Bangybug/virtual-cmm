@@ -32,6 +32,10 @@ export type TSurface = {
   source: string | File
 }
 
+export type TDisplayMode = {
+  showWireframe: boolean
+}
+
 export interface ISurfaceEvent extends BaseEvent {
   type: 'surfaceChanged' | 'registerSurface' | 'unregisterSurface'
   surfaceKey: string
@@ -41,4 +45,5 @@ export type TSurfaceEvents =  {
   surfaceChanged: ISurfaceEvent
   registerSurface: ISurfaceEvent
   unregisterSurface: ISurfaceEvent
+  displayMode: TDisplayMode
 }

@@ -1,5 +1,5 @@
 import { Camera, EventDispatcher, Mesh, Raycaster, Vector2, WebGLRenderer } from "three"
-import { ITool, TKeyEvents, TMouseEvents, TSurface, TSurfaceEvents } from "./types"
+import { ITool, TDisplayMode, TKeyEvents, TMouseEvents, TSurface, TSurfaceEvents } from "./types"
 import { ThreeEvent } from "@react-three/fiber"
 import { CameraControls } from "@react-three/drei"
 
@@ -9,9 +9,14 @@ interface IThreeState {
   gl: WebGLRenderer
   raycaster: Raycaster
   controls: EventDispatcher | null
+  invalidate: (frames?: number) => void;
 }
 
 export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
+  readonly displayMode: TDisplayMode = {
+    showWireframe: false
+  }
+
   private threeState?: IThreeState = undefined
 
   private surfaces = new Map<string, TSurface>()
@@ -129,6 +134,12 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
 
   disableCamera() {
     (this.threeState?.controls as CameraControls).enabled = false
+  }
+
+  setShowWireframe(enable: boolean) {
+    this.displayMode.showWireframe = enable
+    this.dispatchEvent({type: 'displayMode', ...this.displayMode})
+    this.threeState?.invalidate()
   }
 
   private isActionAllowed = () =>
