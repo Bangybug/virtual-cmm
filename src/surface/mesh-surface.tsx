@@ -6,6 +6,7 @@ import { surfaceContext } from "./contexts"
 import { TDisplayMode } from "./types"
 import { SharedGeometryModel } from "../renderables/shared-geometry"
 import { useAdjacencyGraph } from "../hooks/use-adjacency-graph"
+import { useRefState } from "../hooks/use-ref-state"
 
 type TMesh = Mesh<BufferGeometry, Material>
 
@@ -20,29 +21,31 @@ export const MeshSurface: React.FC<
   surfaceKey,
   ...restProps
 }) => {
-    const renderableMesh = useRef<TMesh>(null)
-
+    const [renderableMesh, setRenderableMesh] = useRefState<TMesh | null>(null)
     const surfaceContextInstance = useContext(surfaceContext)
-
     const [showWireframe, setShowWireframe] = useState(false)
 
     useEffect(() => {
       const onShow = (m: TDisplayMode) => {
         setShowWireframe(m.showWireframe)
       }
-
       surfaceContextInstance.addEventListener('displayMode', onShow)
-
       return () => {
-        if (renderableMesh.current) {
-          surfaceContextInstance.unregisterSurface(
-            surfaceKey,
-            renderableMesh.current
-          )
-        }
         surfaceContextInstance.removeEventListener('displayMode', onShow)
       }
     }, [])
+
+    useEffect(() => {
+      const mesh = renderableMesh.current
+      if (mesh) {
+        return () => {
+          surfaceContextInstance.unregisterSurface(
+            surfaceKey,
+            mesh
+          )
+        }
+      }
+    }, [surfaceKey])
 
     useBVH(renderableMesh, {
       verbose: true,
@@ -55,7 +58,7 @@ export const MeshSurface: React.FC<
     })
 
     const wireframe = useMemo(() => {
-      if (renderableMesh.current && showWireframe) {
+      if (renderableMesh.current) {
         const { geometry } = renderableMesh.current
         const sharedGeometryModel = new SharedGeometryModel({ isWireframe: true })
         sharedGeometryModel.setSourceGeometry(geometry)
@@ -66,21 +69,22 @@ export const MeshSurface: React.FC<
     }, [renderableMesh.current])
 
 
-    return (<Suspense>
-      <MeshFile<TMesh>
-        {...restProps}
-        {...surfaceContextInstance.mouseEvents}
-        onLoad={({ mesh }) => {
-          surfaceContextInstance.registerSurface({
-            mesh,
-            surfaceKey,
-            source: restProps.url!
-          })
-        }}
-        meshRef={renderableMesh}
-      >
-        {children}
-        {wireframe && <primitive visible={showWireframe} object={wireframe.mesh} />}
-      </MeshFile>
-    </Suspense>)
+    return (
+      <Suspense>
+        <MeshFile<TMesh>
+          {...restProps}
+          {...surfaceContextInstance.mouseEvents}
+          onLoad={({ mesh }) => {
+            surfaceContextInstance.registerSurface({
+              mesh,
+              surfaceKey,
+              source: restProps.url!
+            })
+            setRenderableMesh(mesh)
+          }}
+        >
+          {children}
+          {wireframe && <primitive visible={showWireframe} object={wireframe.mesh} />}
+        </MeshFile>
+      </Suspense>)
   }

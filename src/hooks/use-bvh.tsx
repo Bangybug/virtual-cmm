@@ -38,5 +38,5 @@ export function useBVH(
     }
 
     return undefined
-  }, [mesh, options])
+  }, [mesh.current, options])
 }
