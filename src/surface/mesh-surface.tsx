@@ -69,7 +69,7 @@ export const MeshSurface: React.FC<
       }
 
       return undefined
-    }, [showWireframe])
+    }, [renderableMesh.current])
 
 
     return <MeshFile<TMesh>

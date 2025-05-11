@@ -35,8 +35,6 @@ function App() {
               <ToolButtons />
             </ButtonGroup>
           </Navbar.Collapse>
-
-
         </Navbar>
       </header>
       <main className="w-100 d-flex align-items-stretch flex-grow-1">

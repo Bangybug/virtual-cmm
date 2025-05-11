@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { OverlayTrigger, Tooltip, ToggleButton } from 'react-bootstrap';
 import { Map, Geo } from 'react-bootstrap-icons';
 import { surfaceContextInstance } from './surface/contexts';
+import { tools } from './surface/tools';
 
 export const ToolButtons = () => {
   const [showWireframe, setShowWireframe] = useState(false)
@@ -10,6 +11,18 @@ export const ToolButtons = () => {
   useEffect(() => {
     surfaceContextInstance.setShowWireframe(showWireframe)
   }, [showWireframe])
+
+  useEffect(() => {
+    if (capturePoints) {
+      surfaceContextInstance.activeTool = tools.pointSelect
+    } else {
+      surfaceContextInstance.deactivateTool(tools.pointSelect)
+    }
+  }, [capturePoints])
+
+  // useEffect(() => {
+  //   surfaceContextInstance.activeTool = tools.pointSelect
+  // })
 
   return (<>
     <OverlayTrigger

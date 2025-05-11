@@ -2,6 +2,7 @@ import { Camera, EventDispatcher, Mesh, Raycaster, Vector2, WebGLRenderer } from
 import { ITool, TDisplayMode, TKeyEvents, TMouseEvents, TSurface, TSurfaceEvents } from "./types"
 import { ThreeEvent } from "@react-three/fiber"
 import { CameraControls } from "@react-three/drei"
+import { SurfaceAuxiliaries } from "./surface-auxiliaries"
 
 interface IThreeState {
   pointer: Vector2
@@ -16,6 +17,8 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
   readonly displayMode: TDisplayMode = {
     showWireframe: false
   }
+
+  readonly auxiliaries = new SurfaceAuxiliaries(this)
 
   private threeState?: IThreeState = undefined
 
@@ -104,12 +107,13 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
 
   registerSurface(surface: TSurface) {
     this.surfaces.set(surface.surfaceKey, surface)
-    this.dispatchEvent({ type: 'registerSurface', surfaceKey: surface.surfaceKey })
+    this.dispatchEvent({ type: 'registerSurface', surface });
   }
 
   unregisterSurface(surfaceKey: string, mesh: Mesh) {
-    if (this.surfaces.get(surfaceKey)?.mesh === mesh) {
-      this.dispatchEvent({ type: 'unregisterSurface', surfaceKey })
+    const surface = this.surfaces.get(surfaceKey)
+    if (surface?.mesh === mesh) {
+      this.dispatchEvent({ type: 'unregisterSurface', surface })
       this.surfaces.delete(surfaceKey)
     }
   }
@@ -128,22 +132,32 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
     }
   }
 
+  deactivateTool(tool: ITool) {
+    if (tool === this.#activeTool) {
+      tool.off()
+    }
+  }
+
   enableCamera() {
-    (this.threeState?.controls as CameraControls).enabled = true
+    if (this.threeState) {
+      (this.threeState.controls as CameraControls).enabled = true
+    }
   }
 
   disableCamera() {
-    (this.threeState?.controls as CameraControls).enabled = false
+    if (this.threeState) {
+      (this.threeState?.controls as CameraControls).enabled = false
+    }
   }
 
   setShowWireframe(enable: boolean) {
     this.displayMode.showWireframe = enable
-    this.dispatchEvent({type: 'displayMode', ...this.displayMode})
-    this.threeState?.invalidate()
+    this.dispatchEvent({ type: 'displayMode', ...this.displayMode })
+    this.threeState?.invalidate(10)
   }
 
   private isActionAllowed = () =>
-    !(this.threeState?.controls as CameraControls).active
+    Boolean(this.threeState && !(this.threeState.controls as CameraControls).active)
 
 
 }

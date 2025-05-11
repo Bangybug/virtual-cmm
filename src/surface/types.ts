@@ -38,7 +38,7 @@ export type TDisplayMode = {
 
 export interface ISurfaceEvent extends BaseEvent {
   type: 'surfaceChanged' | 'registerSurface' | 'unregisterSurface'
-  surfaceKey: string
+  surface: TSurface
 }
 
 export type TSurfaceEvents =  {

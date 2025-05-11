@@ -6,7 +6,7 @@ import {
   MeshBasicMaterial,
   Uint32BufferAttribute,
 } from 'three'
-import { TriangleIndexIterator } from '../cglib/triangle-index-iterator'
+import { TriangleIndexIterator } from '../cglib/iterators/triangle-index-iterator'
 
 interface ISharedGeometryModelProps {
   isWireframe?: boolean

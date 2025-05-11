@@ -35,7 +35,7 @@ export const Scene = (props: PropsWithChildren) => {
       intensity={0.7}
     />
 
-    <OrbitControls enablePan={false} />
+    <OrbitControls enablePan={true} makeDefault/>
 
     <GizmoHelper
       alignment="bottom-right"
