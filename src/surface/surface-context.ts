@@ -52,6 +52,7 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
     onPointerDown: (event: ThreeEvent<PointerEvent>) => {
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.mouseEvents.onPointerDown(event)
+        this.threeState?.invalidate(10)
       }
     },
 
@@ -59,6 +60,7 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
       this.hovered = event
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.mouseEvents.onPointerMove(event)
+        this.threeState?.invalidate(10)
       }
     },
 
@@ -97,6 +99,7 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
       this.hovered = event
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.mouseEvents.onPointerEnter?.(event)
+        this.threeState?.invalidate(10)
       }
     },
   }

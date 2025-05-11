@@ -1,6 +1,6 @@
 import { BufferGeometry, Material, Mesh } from "three"
 import { IModelProps, MeshFile } from "../mesh/mesh-file"
-import { PropsWithChildren, Suspense, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { PropsWithChildren, Suspense, useContext, useEffect, useMemo, useState } from "react"
 import { useBVH } from "../hooks/use-bvh"
 import { surfaceContext } from "./contexts"
 import { TDisplayMode } from "./types"

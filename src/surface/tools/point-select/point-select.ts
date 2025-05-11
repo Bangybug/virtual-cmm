@@ -1,8 +1,8 @@
 import { ThreeEvent } from "@react-three/fiber";
 import { ITool, TKeyEvents, TMouseEvents } from "../../types";
-import { surfaceContextInstance } from "../../contexts";
 import { Mesh } from "three";
 import { circle } from "../../../renderables/circle";
+import { setCursorToPoint } from "./utils";
 
 export class PointSelect implements ITool {
   private _mesh: Mesh | undefined = undefined
@@ -14,17 +14,16 @@ export class PointSelect implements ITool {
       }
       // TODO get point
     },
-    
+
     onPointerMove: (event) => {
-      const bvh = this._mesh?.geometry.boundsTree
-      if (event.face?.a === undefined || !bvh) {
-        return
+      if (this._mesh && event.faceIndex) {
+        setCursorToPoint({ mesh: this._mesh, cursor: circle, point: event.point, faceIndex: event.faceIndex })
       }
     },
-    
+
     onPointerUp: () => {
     },
-    
+
     onPointerLeave: () => {
       this.hide()
     },
@@ -41,10 +40,10 @@ export class PointSelect implements ITool {
       this.show()
     }
   }
-  
+
   keyboardEvents?: TKeyEvents | undefined;
 
-  
+
   on = () => {
     this._mesh = undefined
 

@@ -1,7 +1,11 @@
-type TFace = {
+export type TFace = {
   a: number
   b: number
   c: number
+}
+
+const tmp = {
+  face: {a: 0, b: 0, c: 0} satisfies TFace
 }
 
 type TIndexedFace = TFace & { faceIndex: number }
@@ -36,6 +40,14 @@ export class FaceGraph {
 
       ++faceIndex
     }
+  }
+
+  public getFaceAt(index: number) {
+    const i = index * 3
+    tmp.face.a = i
+    tmp.face.b = i + 1
+    tmp.face.c = i + 2
+    return tmp.face
   }
 
   public adjacentIndices(fromVertexIndex: number): Iterable<number> {

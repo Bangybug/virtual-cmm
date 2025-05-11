@@ -6,7 +6,7 @@ import { FacesIterator } from '../iterators/faces-iterator'
 export class AdjacencyGraph {
   private index!: BufferAttribute
 
-  private faceGraph!: FaceGraph
+  public faceGraph!: FaceGraph
 
   constructor(private geometry: BufferGeometry) {
     this.build(geometry)
