@@ -4,14 +4,10 @@ import {
   acceleratedRaycast,
   computeBoundsTree,
   disposeBoundsTree,
+  MeshBVHOptions,
 } from 'three-mesh-bvh'
 
-export interface BVHOptions {
-  splitStrategy?: 'CENTER' | 'AVERAGE' | 'SAH'
-  verbose?: boolean
-  setBoundingBox?: boolean
-  maxDepth?: number
-  maxLeafTris?: number
+export interface BVHOptions extends MeshBVHOptions {
   isDisposeOnUnmount?: boolean
 }
 

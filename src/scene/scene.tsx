@@ -35,7 +35,7 @@ export const Scene = (props: PropsWithChildren) => {
       intensity={0.7}
     />
 
-    <OrbitControls enablePan={true} makeDefault/>
+    <OrbitControls enablePan={true} makeDefault />
 
     <GizmoHelper
       alignment="bottom-right"
@@ -45,5 +45,4 @@ export const Scene = (props: PropsWithChildren) => {
     </GizmoHelper>
 
   </Canvas>)
-
 }

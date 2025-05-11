@@ -1,15 +1,12 @@
 import { BufferAttribute, BufferGeometry } from 'three'
-import { HalfEdgeGraph } from './HalfEdgeGraph'
-import { FaceGraph } from './FaceGraph'
-import { FacesIterator } from '../FacesIterator'
-import { assertBufferAttribute } from '../../EditableSurface/utils'
+import { FaceGraph } from './face-graph'
+import { assertBufferAttribute } from '../utils'
+import { FacesIterator } from '../iterators/faces-iterator'
 
 export class AdjacencyGraph {
-  private index: BufferAttribute
+  private index!: BufferAttribute
 
-  private faceGraph: FaceGraph
-
-  private halfEdgeGraph: HalfEdgeGraph
+  private faceGraph!: FaceGraph
 
   constructor(private geometry: BufferGeometry) {
     this.build(geometry)
@@ -37,9 +34,6 @@ export class AdjacencyGraph {
     this.faceGraph = new FaceGraph()
     this.faceGraph.build(facesIterator, positionAttr.count, this.index.array)
 
-    this.halfEdgeGraph = new HalfEdgeGraph()
-    this.halfEdgeGraph.build(facesIterator, this.faceGraph)
-
     console.log('AdjacencyGraph build took', Date.now() - startTime)
   }
 
@@ -47,7 +41,4 @@ export class AdjacencyGraph {
     return this.faceGraph.adjacentIndices(fromVertexIndex)
   }
 
-  public boundaryIndices() {
-    return this.halfEdgeGraph.boundaryIndices
-  }
 }

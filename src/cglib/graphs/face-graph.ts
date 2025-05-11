@@ -9,7 +9,7 @@ type TIndexedFace = TFace & { faceIndex: number }
 export class FaceGraph {
   private indexPointToFace: number[][] = []
 
-  private index: ArrayLike<number>
+  private index!: ArrayLike<number>
 
   public build(
     facesIterator: Iterable<TFace>,

@@ -1,8 +1,8 @@
 import { ThreeEvent } from "@react-three/fiber";
-import { ITool, TKeyEvents, TMouseEvents } from "../types";
-import { surfaceContextInstance } from "../contexts";
+import { ITool, TKeyEvents, TMouseEvents } from "../../types";
+import { surfaceContextInstance } from "../../contexts";
 import { Mesh } from "three";
-import { circle } from "../../renderables/circle";
+import { circle } from "../../../renderables/circle";
 
 export class PointSelect implements ITool {
   private _mesh: Mesh | undefined = undefined

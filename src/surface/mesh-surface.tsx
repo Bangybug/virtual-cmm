@@ -1,10 +1,11 @@
 import { BufferGeometry, Material, Mesh } from "three"
 import { IModelProps, MeshFile } from "../mesh/mesh-file"
-import { PropsWithChildren, useContext, useEffect, useMemo, useRef, useState } from "react"
+import { PropsWithChildren, Suspense, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useBVH } from "../hooks/use-bvh"
 import { surfaceContext } from "./contexts"
 import { TDisplayMode } from "./types"
 import { SharedGeometryModel } from "../renderables/shared-geometry"
+import { useAdjacencyGraph } from "../hooks/use-adjacency-graph"
 
 type TMesh = Mesh<BufferGeometry, Material>
 
@@ -26,38 +27,31 @@ export const MeshSurface: React.FC<
     const [showWireframe, setShowWireframe] = useState(false)
 
     useEffect(() => {
-      const mesh = renderableMesh.current
-      if (mesh) {
-        // const { geometry } = renderableMesh.current
-        // surfaceContextInstance.meshState.saveOriginalFaceIndex(surfaceKey, geometry)
-        // ensureNormalsAvailable(geometry)
+      const onShow = (m: TDisplayMode) => {
+        setShowWireframe(m.showWireframe)
+      }
 
-        surfaceContextInstance.registerSurface({
-          mesh,
-          surfaceKey,
-          source: restProps.url!
-        })
+      surfaceContextInstance.addEventListener('displayMode', onShow)
 
-        const onShow = (m: TDisplayMode) => {
-          setShowWireframe(m.showWireframe)
-        }
-
-        surfaceContextInstance.addEventListener('displayMode', onShow)
-
-        return () => {
+      return () => {
+        if (renderableMesh.current) {
           surfaceContextInstance.unregisterSurface(
             surfaceKey,
-            mesh
+            renderableMesh.current
           )
-          surfaceContextInstance.removeEventListener('displayMode', onShow)
         }
+        surfaceContextInstance.removeEventListener('displayMode', onShow)
       }
-    }, [renderableMesh.current, surfaceContextInstance, surfaceKey])
+    }, [])
 
     useBVH(renderableMesh, {
       verbose: true,
-      splitStrategy: "SAH",
       isDisposeOnUnmount: true,
+      onProgress: (perc) => {
+        if (perc === 1) {
+          useAdjacencyGraph(renderableMesh)
+        }
+      }
     })
 
     const wireframe = useMemo(() => {
@@ -72,12 +66,21 @@ export const MeshSurface: React.FC<
     }, [renderableMesh.current])
 
 
-    return <MeshFile<TMesh>
-      {...restProps}
-      {...surfaceContextInstance.mouseEvents}
-      meshRef={renderableMesh}
-    >
-      {children}
-      {wireframe && <primitive visible={showWireframe} object={wireframe.mesh} />}
-    </MeshFile >
+    return (<Suspense>
+      <MeshFile<TMesh>
+        {...restProps}
+        {...surfaceContextInstance.mouseEvents}
+        onLoad={({ mesh }) => {
+          surfaceContextInstance.registerSurface({
+            mesh,
+            surfaceKey,
+            source: restProps.url!
+          })
+        }}
+        meshRef={renderableMesh}
+      >
+        {children}
+        {wireframe && <primitive visible={showWireframe} object={wireframe.mesh} />}
+      </MeshFile>
+    </Suspense>)
   }
