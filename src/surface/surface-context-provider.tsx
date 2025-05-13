@@ -1,6 +1,6 @@
 import { useThree } from "@react-three/fiber"
 import { PropsWithChildren, useEffect } from "react"
-import { surfaceContext, surfaceContextInstance } from "./contexts"
+import { surfaceContext, surfaceContextInstance } from "../contexts"
 
 export const SurfaceContextProvider: React.FC<
   PropsWithChildren

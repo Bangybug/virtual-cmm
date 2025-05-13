@@ -1,6 +1,6 @@
 import { RefObject } from 'react'
 import { BufferGeometry, Mesh } from 'three'
-import { surfaceContextInstance } from '../surface/contexts'
+import { surfaceContextInstance } from '../contexts'
 
 export const getAdjacencyGraph = (model: Mesh | BufferGeometry | null) => {
   if (model) {

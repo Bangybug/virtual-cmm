@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { OverlayTrigger, Tooltip, ToggleButton } from 'react-bootstrap';
 import { Map, Geo } from 'react-bootstrap-icons';
-import { surfaceContextInstance } from './surface/contexts';
+import { surfaceContextInstance } from './contexts';
 import { tools } from './surface/tools';
 
 export const ToolButtons = () => {

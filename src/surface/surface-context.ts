@@ -138,6 +138,7 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
   deactivateTool(tool: ITool) {
     if (tool === this.#activeTool) {
       tool.off()
+      this.#activeTool = undefined
     }
   }
 

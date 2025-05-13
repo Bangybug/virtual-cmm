@@ -7,6 +7,7 @@ import { SurfaceContextProvider } from './surface/surface-context-provider';
 import { MeshSurface } from './surface/mesh-surface';
 import { ButtonGroup } from 'react-bootstrap';
 import { ToolButtons } from './tool-buttons';
+import { Tree } from './entities/tree/tree';
 
 function App() {
 
@@ -37,7 +38,7 @@ function App() {
           </Navbar.Collapse>
         </Navbar>
       </header>
-      <main className="w-100 d-flex align-items-stretch flex-grow-1">
+      <main className="w-100 d-flex align-items-stretch flex-grow-1" style={{ position: 'relative' }}>
         <Scene>
           <SurfaceContextProvider>
             <MeshSurface surfaceKey={'scan'} fileType={'stl'} url='spoon.stl'>
@@ -49,6 +50,9 @@ function App() {
             </MeshSurface>
           </SurfaceContextProvider>
         </Scene>
+        <div style={{ width: '200px', right: 0, height: '100%', position: 'absolute', pointerEvents: 'none' }}>
+          <Tree />
+        </div>
       </main >
     </>
   )
