@@ -1,7 +1,0 @@
-.tree {
-  pointer-events: all;
-}
-
-.tree > .node {
-  display: block;
-}

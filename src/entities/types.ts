@@ -7,12 +7,13 @@ export type TNode = {
 }
 
 export interface IEntitiesEvent extends BaseEvent {
-  type: 'add' | 'remove'
+  type: 'add' | 'remove' | 'open'
   node: TNode
 }
 
 export type TEntitiesEvents =  {
   add: IEntitiesEvent
   remove: IEntitiesEvent
+  open: IEntitiesEvent
 }
 

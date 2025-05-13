@@ -1,4 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './entities/style.css'
+import 'react-resizable/css/styles.css'
 import Nav from 'react-bootstrap/esm/Nav';
 import Navbar from 'react-bootstrap/esm/Navbar';
 import NavDropdown from 'react-bootstrap/esm/NavDropdown';
@@ -8,6 +10,7 @@ import { MeshSurface } from './surface/mesh-surface';
 import { ButtonGroup } from 'react-bootstrap';
 import { ToolButtons } from './tool-buttons';
 import { Tree } from './entities/tree/tree';
+import { PointsDialog } from './entities/dialogs/points-dialog';
 
 function App() {
 
@@ -50,9 +53,10 @@ function App() {
             </MeshSurface>
           </SurfaceContextProvider>
         </Scene>
-        <div style={{ width: '200px', right: 0, height: '100%', position: 'absolute', pointerEvents: 'none' }}>
+        <div style={{ marginRight: 20, right: 0, height: '100%', position: 'absolute', pointerEvents: 'none' }}>
           <Tree />
         </div>
+        <PointsDialog />
       </main >
     </>
   )
