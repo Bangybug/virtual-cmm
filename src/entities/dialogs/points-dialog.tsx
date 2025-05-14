@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import Button from 'react-bootstrap/esm/Button'
 import Modal from 'react-bootstrap/esm/Modal'
-import { entitiesContext } from '../../contexts'
+import { entitiesContext, uiStore } from '../../contexts'
 import { IEntitiesEvent } from '../types'
 import { useDraggable } from '../../hooks/use-draggable'
 import Card from 'react-bootstrap/esm/Card'
 import Form from 'react-bootstrap/esm/Form'
 import { ResizableBox } from 'react-resizable'
+import { EDialog } from '../store/ui-store'
 
 export const PointsDialog = () => {
   const [isVisible, setIsVisible] = useState(false)
@@ -26,11 +27,13 @@ export const PointsDialog = () => {
 
   const modal = useRef<HTMLDivElement>(null)
 
-  useDraggable(modal, isVisible)
+  useDraggable(modal, EDialog.PointsDialog, isVisible)
 
   if (!isVisible) {
     return null
   }
+
+  const settings = uiStore.getSettings(EDialog.PointsDialog)
 
   return (
     <div
@@ -38,7 +41,18 @@ export const PointsDialog = () => {
       ref={modal}
       style={{ transform: 'translate(-50%, -50%)' }}
     >
-      <ResizableBox className="box hover-handles" width={400} height={300}>
+      <ResizableBox
+        className="box hover-handles"
+        width={settings?.width || 400}
+        height={settings?.height || 300}
+        onResizeStop={(e, data) => {
+          uiStore.updateSettings(EDialog.PointsDialog, {
+            ...(settings || { left: 0, top: 0 }),
+            width: data.size.width,
+            height: data.size.height,
+          })
+        }}
+      >
         <Card style={{ padding: 10, width: '100%', height: '100%' }}>
           <Modal.Header
             closeButton

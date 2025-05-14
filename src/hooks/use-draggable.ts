@@ -5,27 +5,36 @@ import {
   useLayoutEffect,
   useRef,
 } from 'react'
+import { EDialog } from '../entities/store/ui-store'
+import { uiStore } from '../contexts'
 
 export function useDraggable(
   modal: RefObject<HTMLDivElement | null>,
+  dialogId: EDialog,
   show: boolean
 ) {
-  const pos = useRef({ left: 0, top: 0 })
+  const pos = useRef(
+    uiStore.getSettings(dialogId) || { left: 0, top: 0, width: 0, height: 0 }
+  )
 
   useLayoutEffect(() => {
     const draggable = modal.current
-    if (draggable && (pos.current.left === 0 || pos.current.top === 0)) {
+    if (!draggable) {
+      return
+    }
+    if (pos.current.left === 0 || pos.current.top === 0) {
       pos.current.left = Math.floor(
         draggable.offsetLeft - draggable.offsetWidth * 0.5
       )
       pos.current.top = Math.floor(
         draggable.offsetTop - draggable.offsetHeight * 0.5
       )
-
-      draggable.style['transform'] = ''
-      draggable.style.left = `${pos.current.left}px`
-      draggable.style.top = `${pos.current.top}px`
+      pos.current.width = draggable.offsetWidth
+      pos.current.height = draggable.offsetHeight
     }
+    draggable.style.left = `${pos.current.left}px`
+    draggable.style.top = `${pos.current.top}px`
+    draggable.style['transform'] = ''
   })
 
   const onDrag = useCallback((e: PointerEvent) => {
@@ -44,8 +53,13 @@ export function useDraggable(
     document.removeEventListener('pointermove', onDrag)
     const draggable = modal.current
     if (draggable) {
+      if (!(e.target as HTMLElement)?.classList.contains('modal-header')) {
+        return
+      }
+
       draggable.classList.remove('active')
       draggable.releasePointerCapture(e.pointerId)
+      uiStore.updateSettings(dialogId, pos.current)
     }
   }, [])
 
@@ -54,9 +68,7 @@ export function useDraggable(
     if (draggable && show) {
       draggable.addEventListener('pointerdown', (e: PointerEvent) => {
         const target = e.target as HTMLElement
-        // if (target.classList?.contains('react-resizable-handle')) {
-        //   return
-        // }
+
         if (!target.classList?.contains('modal-header')) {
           return
         }
