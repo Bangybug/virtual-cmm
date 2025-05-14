@@ -9,13 +9,14 @@ export class PointSelect implements ITool {
 
   readonly mouseEvents: TMouseEvents = {
     onPointerDown: (event) => {
-      if (event.button !== 0) {
-        return
-      }
       // TODO get point
     },
 
     onPointerMove: (event) => {
+      if (event.buttons !== 0) {
+        return
+      }
+
       if (this._mesh && event.faceIndex) {
         setCursorToPoint({ mesh: this._mesh, cursor: circle, point: event.point, faceIndex: event.faceIndex })
       }

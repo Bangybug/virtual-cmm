@@ -28,7 +28,7 @@ export function useDraggable(
     }
   })
 
-  const onDrag = useCallback((e: MouseEvent) => {
+  const onDrag = useCallback((e: PointerEvent) => {
     const div = modal.current
     if (div && pos.current) {
       pos.current.left += e.movementX
@@ -36,35 +36,43 @@ export function useDraggable(
       div.style.left = `${pos.current.left}px`
       div.style.top = `${pos.current.top}px`
     }
+    e.preventDefault()
+    e.stopPropagation()
   }, [])
 
-  const onMouseUp = useCallback(() => {
-    document.removeEventListener('mousemove', onDrag)
+  const onMouseUp = useCallback((e: PointerEvent) => {
+    document.removeEventListener('pointermove', onDrag)
     const draggable = modal.current
     if (draggable) {
       draggable.classList.remove('active')
+      draggable.releasePointerCapture(e.pointerId)
     }
   }, [])
 
   useEffect(() => {
     const draggable = modal.current
     if (draggable && show) {
-      draggable.addEventListener('mousedown', (e: MouseEvent) => {
+      draggable.addEventListener('pointerdown', (e: PointerEvent) => {
         const target = e.target as HTMLElement
-        if (target.classList?.contains('react-resizable-handle')) {
+        // if (target.classList?.contains('react-resizable-handle')) {
+        //   return
+        // }
+        if (!target.classList?.contains('modal-header')) {
           return
         }
 
+        draggable.setPointerCapture(e.pointerId)
+
         draggable.classList.add('active')
-        document.addEventListener('mousemove', onDrag)
+        document.addEventListener('pointermove', onDrag)
       })
 
-      document.addEventListener('mouseup', onMouseUp)
+      document.addEventListener('pointerup', onMouseUp)
     }
 
     if (!show) {
       if (draggable) {
-        document.removeEventListener('mouseup', onMouseUp)
+        document.removeEventListener('pointerup', onMouseUp)
       }
     }
   }, [modal, show, onMouseUp, onDrag])
