@@ -10,8 +10,7 @@ import { uiStore } from '../contexts'
 
 export function useDraggable(
   modal: RefObject<HTMLDivElement | null>,
-  dialogId: EDialog,
-  show: boolean
+  dialogId: EDialog
 ) {
   const pos = useRef(
     uiStore.getSettings(dialogId) || { left: 0, top: 0, width: 0, height: 0 }
@@ -65,8 +64,8 @@ export function useDraggable(
 
   useEffect(() => {
     const draggable = modal.current
-    if (draggable && show) {
-      draggable.addEventListener('pointerdown', (e: PointerEvent) => {
+    if (draggable) {
+      const pointerDown = (e: PointerEvent) => {
         const target = e.target as HTMLElement
 
         if (!target.classList?.contains('modal-header')) {
@@ -77,15 +76,16 @@ export function useDraggable(
 
         draggable.classList.add('active')
         document.addEventListener('pointermove', onDrag)
-      })
+      }
 
+      draggable.addEventListener('pointerdown', pointerDown)
       document.addEventListener('pointerup', onMouseUp)
-    }
 
-    if (!show) {
-      if (draggable) {
+      return () => {
+        draggable.removeEventListener('pointerdown', pointerDown)
         document.removeEventListener('pointerup', onMouseUp)
+        document.removeEventListener('pointermove', onDrag)
       }
     }
-  }, [modal, show, onMouseUp, onDrag])
+  }, [modal, onMouseUp, onDrag])
 }

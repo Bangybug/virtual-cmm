@@ -1,7 +1,8 @@
 import { BaseEvent } from "three"
+import { EDialog } from "./store/ui-store"
 
 export type TNode = {
-  class: 'points' | 'curve'
+  class: EDialog
   label: string
   key: string
 }
