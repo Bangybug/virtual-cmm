@@ -43,7 +43,7 @@ export const DraggableDialog = ({
           })
         }}
       >
-        <Card style={{ padding: 10, width: '100%', height: '100%' }}>
+        <Card className='dialog'>
           <Modal.Header
             closeButton
             style={{ userSelect: 'none' }}
