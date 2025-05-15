@@ -1,10 +1,12 @@
-import { BaseEvent } from "three"
+import { BaseEvent, Vector3Like } from "three"
 import { EDialog } from "./store/ui-store"
+
+export type TNodeKey = string
 
 export type TNode = {
   class: EDialog
   label: string
-  key: string
+  key: TNodeKey
 }
 
 export interface IEntitiesEvent extends BaseEvent {
@@ -18,3 +20,7 @@ export type TEntitiesEvents =  {
   open: IEntitiesEvent
 }
 
+export type TPointCollection = {
+  points: Vector3Like[]
+  key: TNodeKey
+}

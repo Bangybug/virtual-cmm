@@ -1,5 +1,5 @@
 import { EventDispatcher } from 'three'
-import { TEntitiesEvents, TNode } from './types'
+import { TEntitiesEvents, TNode, TPointCollection } from './types'
 import { mockNodes } from './tree/mocks'
 
 let maxNodeId = 1
@@ -7,6 +7,8 @@ let maxNodeId = 1
 export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   // #nodes: TNode[] = []
   #nodes = mockNodes()
+
+  #points = new Map<string, TPointCollection>()
 
   get nodes() {
     return this.#nodes
