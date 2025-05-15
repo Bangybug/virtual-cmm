@@ -24,9 +24,11 @@ export const PointsDialog = () => {
     }
   }, [])
 
-  if (!isVisible) {
+  if (!isVisible || !node) {
     return null
   }
+
+  const points = entitiesContext.getPoints(node.key) || []
 
   return (
     <DraggableDialog
@@ -43,11 +45,11 @@ export const PointsDialog = () => {
       />
 
       <ListGroup className="scrolled-list">
-        <ListGroup.Item>Cras justo odio</ListGroup.Item>
-        <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
-        <ListGroup.Item>Morbi leo risus</ListGroup.Item>
-        <ListGroup.Item>Porta ac consectetur ac</ListGroup.Item>
-        <ListGroup.Item>Vestibulum at eros</ListGroup.Item>
+        {points && points.
+          <ListGroup.Item className="point">
+            <span></span>
+          </ListGroup.Item>
+        ))}
       </ListGroup>
     </DraggableDialog>
   )

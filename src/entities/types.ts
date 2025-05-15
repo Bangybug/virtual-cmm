@@ -1,5 +1,6 @@
 import { BaseEvent, Vector3Like } from "three"
 import { EDialog } from "./store/ui-store"
+import { Points } from "../cglib/builders/points"
 
 export type TNodeKey = string
 
@@ -10,7 +11,7 @@ export type TNode = {
 }
 
 export interface IEntitiesEvent extends BaseEvent {
-  type: 'add' | 'remove' | 'open'
+  type: 'add' | 'remove' | 'open' | 'update'
   node: TNode
 }
 
@@ -18,9 +19,10 @@ export type TEntitiesEvents =  {
   add: IEntitiesEvent
   remove: IEntitiesEvent
   open: IEntitiesEvent
+  update: IEntitiesEvent
 }
 
 export type TPointCollection = {
-  points: Vector3Like[]
+  points: Points
   key: TNodeKey
 }

@@ -1,14 +1,14 @@
 import { EventDispatcher } from 'three'
-import { TEntitiesEvents, TNode, TPointCollection } from './types'
-import { mockNodes } from './tree/mocks'
+import { TEntitiesEvents, TNode, TNodeKey, TPointCollection } from './types'
+import { Points } from '../cglib/builders/points'
 
 let maxNodeId = 1
 
 export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
-  // #nodes: TNode[] = []
-  #nodes = mockNodes()
+  #nodes: TNode[] = []
+  // #nodes = mockNodes()
 
-  #points = new Map<string, TPointCollection>()
+  #points = new Map<TNodeKey, TPointCollection>()
 
   get nodes() {
     return this.#nodes
@@ -34,5 +34,22 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     if (i !== -1) {
       this.dispatchEvent({ type: 'open', node })
     }
+  }
+
+  updatePoints(key: TNodeKey, points: Points) {
+    const p = this.#points.get(key)
+    if (!p) {
+      this.#points.set(key, { points, key })
+    } else {
+      p.points = points
+    }
+    let node = this.#nodes.find((n) => n.key === key)
+    if (node) {
+      this.dispatchEvent({ type: 'update', node })
+    }
+  }
+
+  getPoints(key: TNodeKey): TPointCollection | undefined {
+    return this.#points.get(key)
   }
 }
