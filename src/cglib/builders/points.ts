@@ -155,11 +155,11 @@ export class Points {
     }
   }
 
-  map<Z>(fn: (element: number[]) => Z): Z[] {
+  map<Z>(fn: (element: number[], index: number) => Z): Z[] {
     const newArr: Z[] = []
     const end = this.getUsedCount()
     for (let i = 0; i < end; ++i) {
-      newArr.push(fn(this.getPointAt(i)))
+      newArr.push(fn(this.getPointAt(i), i))
     }
     return newArr
   }

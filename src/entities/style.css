@@ -52,3 +52,8 @@
   background-color: #102b3c;
   border-color: #27a9ea;
 }
+
+.point > span {
+  max-width: 60px;
+  margin-right: 6px;
+}

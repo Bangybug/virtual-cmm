@@ -1,4 +1,4 @@
-import { BaseEvent, Vector3Like } from "three"
+import { BaseEvent, Object3D } from "three"
 import { EDialog } from "./store/ui-store"
 import { Points } from "../cglib/builders/points"
 
@@ -25,4 +25,6 @@ export type TEntitiesEvents =  {
 export type TPointCollection = {
   points: Points
   key: TNodeKey
+  selectedIndex?: number
+  renderable: Object3D
 }

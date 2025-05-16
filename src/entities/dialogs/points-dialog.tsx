@@ -1,34 +1,47 @@
 import { useEffect, useState } from 'react'
 import { entitiesContext } from '../../contexts'
-import { IEntitiesEvent, TNode } from '../types'
+import { IEntitiesEvent, TNode, TPointCollection } from '../types'
 import Form from 'react-bootstrap/esm/Form'
 import { EDialog } from '../store/ui-store'
 import { DraggableDialog } from './draggable-dialog'
 import ListGroup from 'react-bootstrap/esm/ListGroup'
+import { Decimal } from '../../cglib/rounding'
+import { useRefState } from '../../hooks/use-ref-state'
 
 export const PointsDialog = () => {
-  const [isVisible, setIsVisible] = useState(false)
-  const [node, setNode] = useState<TNode | null>(null)
+  const [isVisible, setIsVisible] = useRefState(false)
+  const [node, setNode] = useRefState<TNode | null>(null)
+  const [data, setData] = useState<TPointCollection | undefined>(undefined)
 
   useEffect(() => {
     const openDialog = (event: IEntitiesEvent) => {
-      if (event.node.class === EDialog.PointsDialog) {
+      const node = event.node
+      if (node?.class === EDialog.PointsDialog) {
         setIsVisible(true)
-        setNode(event.node)
+        setNode(node)
+        setData(entitiesContext.getPoints(node.key))
       }
     }
     entitiesContext.addEventListener('open', openDialog)
 
+    const onChange = (event: IEntitiesEvent) => {
+      if (isVisible.current && event.node.key === node.current?.key) {
+        setData(entitiesContext.getPoints(node.current.key))
+      }
+    }
+    entitiesContext.addEventListener('update', onChange)
+
     return () => {
       entitiesContext.removeEventListener('open', openDialog)
+      entitiesContext.removeEventListener('update', onChange)
     }
   }, [])
 
-  if (!isVisible || !node) {
+  if (!isVisible.current || !node.current) {
     return null
   }
 
-  const points = entitiesContext.getPoints(node.key) || []
+  const useNode = node.current
 
   return (
     <DraggableDialog
@@ -41,13 +54,18 @@ export const PointsDialog = () => {
         type="text"
         placeholder="name"
         autoFocus
-        value={node?.label}
+        value={useNode.label}
+        onChange={(e) => {
+          useNode.label = e.target.value
+        }}
       />
 
       <ListGroup className="scrolled-list">
-        {points && points.
-          <ListGroup.Item className="point">
-            <span></span>
+        {data?.points.map((p, i) => (
+          <ListGroup.Item key={i} className="point">
+            <span>{Decimal.round(p[0], 3)}</span>
+            <span>{Decimal.round(p[1], 3)}</span>
+            <span>{Decimal.round(p[2], 3)}</span>
           </ListGroup.Item>
         ))}
       </ListGroup>
