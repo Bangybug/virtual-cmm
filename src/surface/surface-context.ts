@@ -26,6 +26,8 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
 
   private hovered: ThreeEvent<PointerEvent> | undefined = undefined
 
+  private isCameraUpdating = false
+
   #activeTool?: ITool = undefined
 
   readonly keyboardEvents: TKeyEvents = {
@@ -143,14 +145,14 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
   }
 
   enableCamera() {
-    if (this.threeState) {
+    if (this.threeState?.controls) {
       (this.threeState.controls as CameraControls).enabled = true
     }
   }
 
   disableCamera() {
-    if (this.threeState) {
-      (this.threeState?.controls as CameraControls).enabled = false
+    if (this.threeState?.controls) {
+      (this.threeState.controls as CameraControls).enabled = false
     }
   }
 
@@ -160,8 +162,17 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
     this.threeState?.invalidate(10)
   }
 
-  private isActionAllowed = () =>
-    Boolean(this.threeState && !(this.threeState.controls as CameraControls).active)
+  isActionAllowed = () => true
+    // TODO no way to disable camera or pointer actions while it is moving
+    // !this.isCameraUpdating
+    // Boolean(this.threeState?.controls && (this.threeState.controls as CameraControls).currentAction || 0 === 0)
 
 
+  onCameraStart = () => {
+    this.isCameraUpdating = true
+  }
+
+  onCameraEnd = () => {
+    this.isCameraUpdating = false
+  }
 }

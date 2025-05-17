@@ -1,12 +1,17 @@
 import { ThreeEvent } from "@react-three/fiber";
 import { ITool, TKeyEvents, TMouseEvents } from "../../types";
-import { Mesh } from "three";
+import { Mesh, Vector3 } from "three";
 import { circle } from "../../../renderables/circle";
 import { setCursorToPoint } from "./utils";
-import { entitiesContext } from "../../../contexts";
+import { entitiesContext, surfaceContextInstance } from "../../../contexts";
 
 export class PointSelect implements ITool {
   private _mesh: Mesh | undefined = undefined
+
+  private meshPointAtCursor?: {
+    point: Vector3,
+    normal: Vector3
+  }
 
   readonly mouseEvents: TMouseEvents = {
     onPointerDown: (event) => {
@@ -18,16 +23,22 @@ export class PointSelect implements ITool {
       }
 
       if (this._mesh && event.faceIndex) {
-        setCursorToPoint({ mesh: this._mesh, cursor: circle, point: event.point, faceIndex: event.faceIndex })
+        this.updateCursorPoint(
+          setCursorToPoint({ mesh: this._mesh, cursor: circle, point: event.point, faceIndex: event.faceIndex })
+        )
       }
     },
 
     onPointerUp: (event) => {
       // TODO create points node if not found
+      if (!surfaceContextInstance.isActionAllowed()) {
+        return
+      }
       const { activeNode } = entitiesContext
       const data = activeNode && entitiesContext.getPoints(activeNode.key)
-      if (data) {
-        data.points.addPoint([event.point.x, event.point.y, event.point.z])
+      const point = this.getCursorMeshPoint(event.point)
+      if (data && point) {
+        data.points.addPoint([point.x, point.y, point.z])
         entitiesContext.updatePoints(activeNode.key, data.points)
       }
       event.stopPropagation()
@@ -73,5 +84,28 @@ export class PointSelect implements ITool {
     circle.visible = false
   }
 
+  public isVisible = () => {
+    return circle.visible
+  }
+
+
+  private updateCursorPoint(p?: Vector3[]) {
+    if (!p) {
+      return
+    }
+    if (!this.meshPointAtCursor) {
+      this.meshPointAtCursor = {
+        point: p[0],
+        normal: p[1]
+      }
+    } else {
+      this.meshPointAtCursor.point = p[0]
+      this.meshPointAtCursor.normal = p[1]
+    }
+  }
+
+  private getCursorMeshPoint(point: Vector3): Vector3 {
+    return this.meshPointAtCursor?.point || point
+  }
 
 }

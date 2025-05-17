@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber"
 import { VIEWER_BOTTOM_SHADE_COLOR, VIEWER_CLEAR_COLOR, VIEWER_LIGHT_COLOR } from "./colors"
 import { PropsWithChildren } from "react"
 import { GizmoHelper, GizmoViewcube, OrbitControls, OrthographicCamera } from "@react-three/drei"
+import { surfaceContextInstance } from "../contexts"
 
 export const Scene = (props: PropsWithChildren) => {
   return (<Canvas
@@ -35,7 +36,11 @@ export const Scene = (props: PropsWithChildren) => {
       intensity={0.7}
     />
 
-    <OrbitControls enablePan={true} makeDefault />
+    <OrbitControls
+      enablePan={true}
+      makeDefault 
+      onStart={surfaceContextInstance.onCameraStart} 
+      onEnd={surfaceContextInstance.onCameraEnd} />
 
     <GizmoHelper
       alignment="bottom-right"

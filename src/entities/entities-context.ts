@@ -1,14 +1,15 @@
 import { EventDispatcher, Mesh } from 'three'
 import { TEntitiesEvents, TNode, TNodeKey, TPointCollection } from './types'
 import { Points } from '../cglib/builders/points'
-import { mockNodes, mockPoints } from './tree/mocks'
 import { createPoints, updatePoints } from '../renderables/points'
+import { projectStore } from '../contexts'
+import { EDialog } from './store/ui-store'
 
 let maxNodeId = 1
 
 export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
-  // #nodes: TNode[] = []
-  #nodes = mockNodes()
+  #nodes: TNode[] = []
+  // #nodes = mockNodes()
 
   #points = new Map<TNodeKey, TPointCollection>()
 
@@ -19,7 +20,34 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   constructor() {
     super()
 
-    mockPoints(this.#points)
+    projectStore.addEventListener('save', (e) => {
+      e.setProject(this.#nodes, this.#points)
+    })
+
+    projectStore.addEventListener('load', (e) => {
+      for (const n of this.#nodes) {
+        this.removeNode(n.key)
+      }
+      this.#nodes.length = 0
+      maxNodeId = 1
+      if (e.project.tree) {
+        for (const node of e.project.tree) {
+          this.#nodes.push(node)
+          this.dispatchEvent({ type: 'add', node })
+          maxNodeId = Math.max(Number(node.key) + 1, maxNodeId)
+        }
+      }
+      this.#points.clear()
+      if (e.project.points) {
+        for (const [nodeKey, value] of Object.entries(e.project.points)) {
+          const build = new Points({ reserveVertices: 10, componentCount: 3 })
+          for (let i = 2; i < value.data.length; i += 3) {
+            build.addPoint([value.data[i - 2], value.data[i - 1], value.data[i]])
+          }
+          this.updatePoints(nodeKey, build)
+        }
+      }
+    })
   }
 
   get nodes() {
@@ -39,6 +67,10 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     }
     if (i !== -1) {
       const node = this.#nodes[i]
+      if (node.class === EDialog.PointsDialog) {
+        const p = this.#points.get(node.key)
+        p?.renderable.removeFromParent()
+      }
       this.#nodes.splice(i, 1)
       this.dispatchEvent({ type: 'remove', node })
     }
