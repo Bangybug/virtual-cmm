@@ -3,13 +3,13 @@ import { ITool, TKeyEvents, TMouseEvents } from "../../types";
 import { Mesh } from "three";
 import { circle } from "../../../renderables/circle";
 import { setCursorToPoint } from "./utils";
+import { entitiesContext } from "../../../contexts";
 
 export class PointSelect implements ITool {
   private _mesh: Mesh | undefined = undefined
 
   readonly mouseEvents: TMouseEvents = {
     onPointerDown: (event) => {
-      // TODO get point
     },
 
     onPointerMove: (event) => {
@@ -22,7 +22,15 @@ export class PointSelect implements ITool {
       }
     },
 
-    onPointerUp: () => {
+    onPointerUp: (event) => {
+      // TODO create points node if not found
+      const { activeNode } = entitiesContext
+      const data = activeNode && entitiesContext.getPoints(activeNode.key)
+      if (data) {
+        data.points.addPoint([event.point.x, event.point.y, event.point.z])
+        entitiesContext.updatePoints(activeNode.key, data.points)
+      }
+      event.stopPropagation()
     },
 
     onPointerLeave: () => {

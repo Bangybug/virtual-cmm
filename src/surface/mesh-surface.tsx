@@ -2,7 +2,7 @@ import { BufferGeometry, Material, Mesh } from "three"
 import { IModelProps, MeshFile } from "../mesh/mesh-file"
 import { PropsWithChildren, Suspense, useContext, useEffect, useMemo, useState } from "react"
 import { useBVH } from "../hooks/use-bvh"
-import { surfaceContext } from "../contexts"
+import { entitiesContext, surfaceContext } from "../contexts"
 import { TDisplayMode } from "./types"
 import { SharedGeometryModel } from "../renderables/shared-geometry"
 import { useAdjacencyGraph } from "../hooks/use-adjacency-graph"
@@ -81,6 +81,8 @@ export const MeshSurface: React.FC<
               source: restProps.url!
             })
             setRenderableMesh(mesh)
+            restProps.onLoad?.({ mesh, props: restProps })
+            entitiesContext.setMesh(mesh)
           }}
         >
           {children}

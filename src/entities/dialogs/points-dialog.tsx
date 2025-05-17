@@ -19,14 +19,16 @@ export const PointsDialog = () => {
       if (node?.class === EDialog.PointsDialog) {
         setIsVisible(true)
         setNode(node)
-        setData(entitiesContext.getPoints(node.key))
+        const p = entitiesContext.getPoints(node.key)
+        setData(p ? {...p} : p)
       }
     }
     entitiesContext.addEventListener('open', openDialog)
 
     const onChange = (event: IEntitiesEvent) => {
       if (isVisible.current && event.node.key === node.current?.key) {
-        setData(entitiesContext.getPoints(node.current.key))
+        const p = entitiesContext.getPoints(event.node.key)
+        setData(p ? {...p} : p)
       }
     }
     entitiesContext.addEventListener('update', onChange)

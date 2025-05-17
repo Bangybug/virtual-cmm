@@ -1,7 +1,7 @@
-import { Mesh } from 'three'
 import { Points } from '../../cglib/builders/points'
 import { EDialog } from '../store/ui-store'
 import { TNode, TNodeKey, TPointCollection } from '../types'
+import { createPoints } from '../../renderables/points'
 
 export const mockNodes = (): TNode[] => {
   return [
@@ -18,6 +18,6 @@ export const mockPoints = (target: Map<TNodeKey, TPointCollection>) => {
   target.set("1", {
     points: p,
     key: '1',
-    renderable: new Mesh()
+    renderable: createPoints(p)
   })
 }
