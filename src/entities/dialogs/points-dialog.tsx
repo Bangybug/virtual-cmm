@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { entitiesContext } from '../../contexts'
-import { IEntitiesEvent, TNode, TPointCollection } from '../types'
+import { IEntitiesEvent, TNode } from '../types'
 import Form from 'react-bootstrap/esm/Form'
 import { EDialog } from '../store/ui-store'
 import { DraggableDialog } from './draggable-dialog'
 import ListGroup from 'react-bootstrap/esm/ListGroup'
 import { Decimal } from '../../cglib/rounding'
 import { useRefState } from '../../hooks/use-ref-state'
+import { TPointCollection } from '../points/types'
 
 export const PointsDialog = () => {
   const [isVisible, setIsVisible] = useRefState(false)
@@ -68,7 +69,7 @@ export const PointsDialog = () => {
 
       <ListGroup className="scrolled-list">
         {data?.points.map((p, i) => (
-          <ListGroup.Item key={i} className="point">
+          <ListGroup.Item key={data.pointKeys[i]} action className="point">
             <span>{Decimal.round(p[0], 3)}</span>
             <span>{Decimal.round(p[1], 3)}</span>
             <span>{Decimal.round(p[2], 3)}</span>

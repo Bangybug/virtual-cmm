@@ -39,7 +39,6 @@ export class PointSelect implements ITool {
         return
       }
 
-      // TODO create points node if not found
       if (!surfaceContextInstance.isActionAllowed()) {
         return
       }
@@ -48,7 +47,8 @@ export class PointSelect implements ITool {
       const point = this.getCursorMeshPoint(event.point)
       if (data && point) {
         data.points.addPoint([point.x, point.y, point.z])
-        entitiesContext.updatePoints(addTo.key, data.points)
+        entitiesContext.points.updatePoints(addTo.key, data.points)
+        entitiesContext.dispatchEvent({type: 'update', node: addTo})
       }
       event.stopPropagation()
     },

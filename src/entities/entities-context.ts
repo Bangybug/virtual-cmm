@@ -1,9 +1,9 @@
 import { EventDispatcher, Mesh } from 'three'
-import { TEntitiesEvents, TNode, TNodeKey, TPointCollection } from './types'
-import { Points } from '../cglib/builders/points'
-import { createPoints, updatePoints } from '../renderables/points'
+import { TEntitiesEvents, TNode, TNodeKey } from './types'
 import { projectStore } from '../contexts'
 import { EDialog } from './store/ui-store'
+import { PointsContext } from './points/points-context'
+import { TPointCollection } from './points/types'
 
 let maxNodeId = 1
 
@@ -11,17 +11,17 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   #nodes: TNode[] = []
   // #nodes = mockNodes()
 
-  #points = new Map<TNodeKey, TPointCollection>()
-
   #openNode?: TNode
 
   #mesh?: Mesh
+
+  readonly points = new PointsContext()
 
   constructor() {
     super()
 
     projectStore.addEventListener('save', (e) => {
-      e.setProject(this.#nodes, this.#points)
+      e.setProject(this.#nodes, this.points.data)
     })
 
     projectStore.addEventListener('load', (e) => {
@@ -37,14 +37,12 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
           maxNodeId = Math.max(Number(node.key) + 1, maxNodeId)
         }
       }
-      this.#points.clear()
-      if (e.project.points) {
-        for (const [nodeKey, value] of Object.entries(e.project.points)) {
-          const build = new Points({ reserveVertices: 10, componentCount: 3 })
-          for (let i = 2; i < value.data.length; i += 3) {
-            build.addPoint([value.data[i - 2], value.data[i - 1], value.data[i]])
-          }
-          this.updatePoints(nodeKey, build)
+
+      this.points.loadPoints(e.project)
+      for (const key of this.points.data.keys()) {
+        const node = this.#nodes.find(n => n.key === key)
+        if (node) {
+          this.dispatchEvent({ type: 'update', node })
         }
       }
     })
@@ -70,9 +68,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     if (i !== -1) {
       const node = this.#nodes[i]
       if (node.class === EDialog.PointsDialog) {
-        const p = this.#points.get(node.key)
-        p?.renderable.removeFromParent()
-        this.#points.delete(node.key)
+        this.points.onNodeRemoved(key)
       }
       this.#nodes.splice(i, 1)
       this.dispatchEvent({ type: 'remove', node })
@@ -87,28 +83,8 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     }
   }
 
-  updatePoints(key: TNodeKey, points: Points) {
-    let p = this.#points.get(key)
-    if (!p) {
-      p = { points, key, renderable: createPoints(points) }
-      this.#points.set(key, p)
-    } else {
-      p.points = points
-      updatePoints(points, p.renderable)
-    }
-
-    if (!p.renderable.parent && this.#mesh) {
-      this.#mesh.parent?.add(p.renderable)
-    }
-
-    let node = this.#nodes.find((n) => n.key === key)
-    if (node) {
-      this.dispatchEvent({ type: 'update', node })
-    }
-  }
-
   getPoints(key: TNodeKey): TPointCollection | undefined {
-    return this.#points.get(key)
+    return this.points.data.get(key)
   }
 
   get activeNode() {
@@ -118,9 +94,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   setMesh(mesh: Mesh) {
     if (this.#mesh !== mesh) {
       this.#mesh = mesh
-      for (const p of this.#points.values()) {
-        mesh.parent?.add(p.renderable)
-      }
+      this.points.setMesh(mesh)
     }
   }
 
@@ -135,12 +109,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     }
     this.#openNode = newNode
     this.newNode(newNode)
-    const points = new Points({reserveVertices: 32, componentCount: 3})
-    this.#points.set(newNode.key, {
-      points,
-      key: newNode.key,
-      renderable: createPoints(points)
-    })
+    this.points.createFor(newNode.key)
     return newNode
   }
 }

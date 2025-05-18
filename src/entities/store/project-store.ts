@@ -3,7 +3,7 @@ import { TNode, TNodeKey, TPointCollection } from "../types"
 
 const VERSION = 1
 
-type TProject = {
+export type TProject = {
   version: number
   tree?: TNode[]
   points?: Record<TNodeKey, { data: number[] }>
