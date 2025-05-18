@@ -1,4 +1,4 @@
-import { PropsWithChildren, useRef } from 'react'
+import { PropsWithChildren, ReactNode, useRef } from 'react'
 import Button from 'react-bootstrap/esm/Button'
 import Modal from 'react-bootstrap/esm/Modal'
 import { uiStore } from '../../contexts'
@@ -11,6 +11,7 @@ import { Trash } from 'react-bootstrap-icons';
 type TDraggableDialogProps = PropsWithChildren<{
   title: string
   dialogId: EDialog
+  footerMenu?: ReactNode
   onClose: () => void
   onRemove?: () => void
 }>
@@ -19,6 +20,7 @@ export const DraggableDialog = ({
   title,
   dialogId,
   children,
+  footerMenu,
   onRemove,
   onClose,
 }: TDraggableDialogProps) => {
@@ -61,6 +63,7 @@ export const DraggableDialog = ({
           </Modal.Header>
           <Modal.Body>{children}</Modal.Body>
           <Modal.Footer>
+            {footerMenu}
             {/* @ts-ignore-next-line */}
             {onRemove && (<Button onClick={onRemove}><Trash/></Button>)}
             &nbsp;

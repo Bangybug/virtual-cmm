@@ -10,6 +10,10 @@ import { useRefState } from '../../hooks/use-ref-state'
 import { TPointCollection } from '../points/types'
 import NavDropdown from 'react-bootstrap/esm/NavDropdown'
 import { Vector3 } from 'three'
+import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger'
+import Tooltip from 'react-bootstrap/esm/Tooltip'
+import { Button } from 'react-bootstrap'
+import { Bezier } from 'react-bootstrap-icons'
 
 export const PointsDialog = () => {
   const [isVisible, setIsVisible] = useRefState(false)
@@ -78,6 +82,19 @@ export const PointsDialog = () => {
     setData(p ? { ...p } : p)
   }, [node])
 
+  const createNurbsCurve = useCallback(() => {
+    if (!node.current) {
+      return
+    }
+    const p = entitiesContext.getPoints(node.current.key)
+    if (!p) {
+      return
+    }
+    const points = p.points.map(p => ([...p]))
+    const curve = (window as any).verb.geom.NurbsCurve.byPoints(points, 3);
+    console.log('CURVA BOBER', curve)
+  }, [node])
+
   if (!isVisible.current || !node.current) {
     return null
   }
@@ -89,6 +106,28 @@ export const PointsDialog = () => {
       title="Точки"
       dialogId={EDialog.PointsDialog}
       onClose={() => setIsVisible(false)}
+      footerMenu={<>
+        <OverlayTrigger
+          placement={'bottom'}
+          delay={{ show: 250, hide: 400 }}
+
+          overlay={
+            <Tooltip>
+              Построить интерполяционную кривую NURBS
+            </Tooltip>
+          }
+        >
+          {/* @ts-ignore-next-line */}
+          <Button
+            variant='secondary'
+            id="interpolate-nurbs"
+            onClick={createNurbsCurve}
+          >
+            <Bezier />
+          </Button>
+        </OverlayTrigger>
+        &nbsp;
+      </>}
       onRemove={() => {
         setIsVisible(false)
         entitiesContext.removeNode(useNode.key)
