@@ -9,6 +9,7 @@ import { Decimal } from '../../cglib/rounding'
 import { useRefState } from '../../hooks/use-ref-state'
 import { TPointCollection } from '../points/types'
 import NavDropdown from 'react-bootstrap/esm/NavDropdown'
+import { Vector3 } from 'three'
 
 export const PointsDialog = () => {
   const [isVisible, setIsVisible] = useRefState(false)
@@ -47,11 +48,18 @@ export const PointsDialog = () => {
   const onClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!(e.target as HTMLDivElement)?.classList.contains('dropdown-toggle')) {
       const next = Number(e.currentTarget?.dataset.id)
+
       setSelected((prev) => {
         const result = next === prev ? undefined : next
         const target = entitiesContext.getPoints(node.current?.key || '')
         if (target) {
           target.selectedKey = result
+          if (next !== undefined) {
+            const xyz = entitiesContext.points.getPointWithKey(node.current?.key!, next)
+            if (xyz) {
+              surfaceContextInstance.setCursorAtMeshPoint(new Vector3().fromArray(xyz))
+            }
+          }
         }
         return result
       })

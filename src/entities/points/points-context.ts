@@ -54,9 +54,8 @@ export class PointsContext {
       this.#points.set(key, p)
     } else {
       p.points = points
-      for (let i = p.lastPointKey; i < points.getUsedCount(); ++i) {
-        p.pointKeys.push(i)
-        ++p.lastPointKey
+      for (let i = p.pointKeys.length; i < points.getUsedCount(); ++i) {
+        p.pointKeys.push(p.lastPointKey++)
       }
       updatePoints(points, p.renderable)
     }
@@ -84,7 +83,7 @@ export class PointsContext {
       const index = p.pointKeys.indexOf(pointKey)
       if (index !== -1) {
         if (index > 0) {
-          result = p.pointKeys[index-1]
+          result = p.pointKeys[index - 1]
         }
         p.pointKeys.splice(index, 1)
         p.points.splice(index, 1)
@@ -92,5 +91,37 @@ export class PointsContext {
       }
     }
     return result
+  }
+
+  getPointWithKey(nodeKey: TNodeKey, pointKey: TPointKey): number[] | undefined {
+    const p = this.#points.get(nodeKey)
+    if (p) {
+      const index = p.pointKeys.indexOf(pointKey)
+      if (index !== -1) {
+        return p.points.getPointAt(index)
+      }
+    }
+  }
+
+  addPoint(nodeKey: TNodeKey, point: number[]) {
+    const data = this.#points.get(nodeKey)
+    if (data) {
+      let shouldAdd = true
+      if (data.selectedKey !== undefined) {
+        const index = data.pointKeys.indexOf(data.selectedKey)
+        if (index !== -1) {
+          data.points.insertPoint(index+1, point)
+          data.pointKeys.splice(index+1, 0, data.lastPointKey)
+          data.selectedKey = data.lastPointKey
+          ++data.lastPointKey
+          shouldAdd = false
+        }
+      } 
+      
+      if (shouldAdd) {
+        data.points.addPoint(point)
+      }
+      this.updatePoints(nodeKey, data.points)
+    }
   }
 }

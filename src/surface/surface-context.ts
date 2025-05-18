@@ -1,8 +1,10 @@
-import { Camera, EventDispatcher, Mesh, Raycaster, Vector2, WebGLRenderer } from "three"
+import { Camera, EventDispatcher, Mesh, Raycaster, Vector2, Vector3, WebGLRenderer } from "three"
 import { ITool, TDisplayMode, TKeyEvents, TMouseEvents, TSurface, TSurfaceEvents } from "./types"
 import { ThreeEvent } from "@react-three/fiber"
 import { CameraControls } from "@react-three/drei"
 import { SurfaceAuxiliaries } from "./surface-auxiliaries"
+import { setCursorToPoint } from "./tools/point-select/utils"
+import { circle } from "../renderables/circle"
 
 interface IThreeState {
   pointer: Vector2
@@ -167,9 +169,9 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
   }
 
   isActionAllowed = () => true
-    // TODO no way to disable camera or pointer actions while it is moving
-    // !this.isCameraUpdating
-    // Boolean(this.threeState?.controls && (this.threeState.controls as CameraControls).currentAction || 0 === 0)
+  // TODO no way to disable camera or pointer actions while it is moving
+  // !this.isCameraUpdating
+  // Boolean(this.threeState?.controls && (this.threeState.controls as CameraControls).currentAction || 0 === 0)
 
 
   onCameraStart = () => {
@@ -178,5 +180,21 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
 
   onCameraEnd = () => {
     this.isCameraUpdating = false
+  }
+
+  setCursorAtMeshPoint(point: Vector3) {
+    const firstSurfaceKey = this.surfaces.keys().next().value
+    if (firstSurfaceKey !== undefined) {
+      const surface = this.surfaces.get(firstSurfaceKey)
+      const bvh = surface?.mesh.geometry.boundsTree
+      if (bvh) {
+        const hit = bvh.closestPointToPoint(point)
+        if (hit) {
+          setCursorToPoint({ mesh: surface.mesh, cursor: circle, faceIndex: hit.faceIndex, point })
+          circle.visible = true
+          this.invalidate()
+        }
+      }
+    }
   }
 }

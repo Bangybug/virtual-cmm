@@ -1,4 +1,4 @@
-import { EventDispatcher, Mesh } from 'three'
+import { EventDispatcher, Mesh, Vector3 } from 'three'
 import { TEntitiesEvents, TNode, TNodeKey } from './types'
 import { projectStore } from '../contexts'
 import { EDialog } from './store/ui-store'
@@ -98,7 +98,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     }
   }
 
-  usePointsNode(): TNode {
+  private usePointsNode(): TNode {
     if (this.#openNode?.class === EDialog.PointsDialog) {
       return this.#openNode
     }
@@ -111,5 +111,11 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     this.newNode(newNode)
     this.points.createFor(newNode.key)
     return newNode
+  }
+
+  addPoint(v: Vector3) {
+    const addTo = this.usePointsNode()
+    this.points.addPoint(addTo.key, [v.x, v.y, v.z])
+    this.dispatchEvent({ type: 'update', node: addTo })
   }
 }

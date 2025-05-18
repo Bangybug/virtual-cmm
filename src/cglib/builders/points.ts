@@ -132,6 +132,16 @@ export class Points {
     this.setPointAt(this.usedCount, point)
   }
 
+  insertPoint(index: number, point: ArrayLike<number>) {
+    if (this.getUsedCount() + 1 > this.props.reserveVertices) {
+      this.reserve(this.props.reserveVertices * 2)
+    }
+    const c = this.props.componentCount
+    this.verticesArray.copyWithin((index + 1) * c, index * c, this.usedCount * c)
+    ++this.usedCount
+    this.setPointAt(index, point)
+  }
+
   getPointAt(index: number, target?: Array<number>): Array<number> {
     const ret = target || this.tmpGetPointTarget
     const { componentCount } = this.props
@@ -166,8 +176,9 @@ export class Points {
 
   splice(index: number, deleteCount: number) {
     this.verticesArray.copyWithin(
-      index * this.props.componentCount, 
-      (index + deleteCount) * this.props.componentCount)
+      index * this.props.componentCount,
+      (index + deleteCount) * this.props.componentCount,
+      this.usedCount * this.props.componentCount)
     this.usedCount -= deleteCount
   }
 }
