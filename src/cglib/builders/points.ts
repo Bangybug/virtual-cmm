@@ -163,4 +163,11 @@ export class Points {
     }
     return newArr
   }
+
+  splice(index: number, deleteCount: number) {
+    this.verticesArray.copyWithin(
+      index * this.props.componentCount, 
+      (index + deleteCount) * this.props.componentCount)
+    this.usedCount -= deleteCount
+  }
 }

@@ -123,6 +123,10 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
     }
   }
 
+  invalidate() {
+    this.threeState?.invalidate()
+  }
+
   get activeTool(): ITool | undefined {
     return this.#activeTool
   }

@@ -3,7 +3,7 @@ import { Points } from "../../cglib/builders/points";
 import { createPoints, updatePoints } from "../../renderables/points";
 import { TProject } from "../store/project-store";
 import { TNodeKey } from "../types";
-import { TPointCollection } from "./types";
+import { TPointCollection, TPointKey } from "./types";
 
 export class PointsContext {
   #points = new Map<TNodeKey, TPointCollection>()
@@ -75,5 +75,22 @@ export class PointsContext {
       pointKeys: [],
       lastPointKey: 0,
     })
+  }
+
+  removePointByKey(nodeKey: TNodeKey, pointKey: TPointKey): TPointKey | undefined {
+    const p = this.#points.get(nodeKey)
+    let result = undefined
+    if (p) {
+      const index = p.pointKeys.indexOf(pointKey)
+      if (index !== -1) {
+        if (index > 0) {
+          result = p.pointKeys[index-1]
+        }
+        p.pointKeys.splice(index, 1)
+        p.points.splice(index, 1)
+        updatePoints(p.points, p.renderable)
+      }
+    }
+    return result
   }
 }

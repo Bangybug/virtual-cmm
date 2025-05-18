@@ -57,3 +57,11 @@
   max-width: 60px;
   margin-right: 6px;
 }
+
+.point.list-group-item-primary > div {
+  position: absolute;
+  top: 8px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+}

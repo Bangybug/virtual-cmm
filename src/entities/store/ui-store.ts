@@ -49,6 +49,12 @@ export class UiStore {
         if (settings.height > window.innerHeight) {
           settings.width = window.innerHeight - 40
         }
+        if (settings.left < 0) {
+          settings.left = 0
+        }
+        if (settings.top < 0) {
+          settings.top = 0
+        }
         if (settings.left + settings.width > window.innerWidth) {
           settings.left = window.innerWidth - settings.width
         }
