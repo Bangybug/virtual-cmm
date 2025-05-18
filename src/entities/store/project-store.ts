@@ -27,7 +27,6 @@ export type TProjectEvents = {
 export class ProjectStore extends EventDispatcher<TProjectEvents> {
   constructor() {
     super()
-    this.loadProject()
 
     window.addEventListener('beforeunload', () => {
       this.saveProject()
@@ -35,6 +34,16 @@ export class ProjectStore extends EventDispatcher<TProjectEvents> {
   }
 
   loadProject() {
+    const item = window.localStorage.getItem('project')
+    if (!item) {
+      return
+    }
+
+    const json = JSON.parse(item) as TProject
+    if (json.version !== VERSION) {
+      return
+    }
+    this.dispatchEvent({ type: 'load', project: json })
   }
 
   saveProject() {
@@ -52,7 +61,7 @@ export class ProjectStore extends EventDispatcher<TProjectEvents> {
       pointsMap = points.entries().reduce((acc: TProject['points'], cur) => {
         const key = cur[0]
         acc![key] = {
-          data: cur[1].points.map(p => p).flat()
+          data: cur[1].points.map(p => ([...p])).flat()
         }
         return acc
       }, {} satisfies TProject['points'])
@@ -63,7 +72,7 @@ export class ProjectStore extends EventDispatcher<TProjectEvents> {
       tree,
       points: pointsMap
     } satisfies TProject
-    
+
     window.localStorage.setItem('project', JSON.stringify(p))
   }
 }

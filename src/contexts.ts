@@ -9,8 +9,9 @@ export const surfaceContext = createContext<SurfaceContext>(
   surfaceContextInstance
 )
 
-export const entitiesContext = new EntitiesContext()
+
+export const projectStore = new ProjectStore()
 
 export const uiStore = new UiStore()
 
-export const projectStore = new ProjectStore()
+export const entitiesContext = new EntitiesContext()

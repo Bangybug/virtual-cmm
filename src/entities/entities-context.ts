@@ -48,6 +48,8 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
         }
       }
     })
+
+    projectStore.loadProject()
   }
 
   get nodes() {
@@ -70,6 +72,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
       if (node.class === EDialog.PointsDialog) {
         const p = this.#points.get(node.key)
         p?.renderable.removeFromParent()
+        this.#points.delete(node.key)
       }
       this.#nodes.splice(i, 1)
       this.dispatchEvent({ type: 'remove', node })
@@ -119,5 +122,25 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
         mesh.parent?.add(p.renderable)
       }
     }
+  }
+
+  usePointsNode(): TNode {
+    if (this.#openNode?.class === EDialog.PointsDialog) {
+      return this.#openNode
+    }
+    const newNode: TNode = {
+      class: EDialog.PointsDialog,
+      label: `points${maxNodeId}`,
+      key: ''
+    }
+    this.#openNode = newNode
+    this.newNode(newNode)
+    const points = new Points({reserveVertices: 32, componentCount: 3})
+    this.#points.set(newNode.key, {
+      points,
+      key: newNode.key,
+      renderable: createPoints(points)
+    })
+    return newNode
   }
 }

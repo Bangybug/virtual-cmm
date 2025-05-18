@@ -50,6 +50,10 @@ export const PointsDialog = () => {
       title="Точки"
       dialogId={EDialog.PointsDialog}
       onClose={() => setIsVisible(false)}
+      onRemove={() => {
+        setIsVisible(false)
+        entitiesContext.removeNode(useNode.key)
+      }}
     >
       <br />
       <Form.Control

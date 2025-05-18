@@ -6,17 +6,20 @@ import { useDraggable } from '../../hooks/use-draggable'
 import Card from 'react-bootstrap/esm/Card'
 import { ResizableBox } from 'react-resizable'
 import { EDialog } from '../store/ui-store'
+import { Trash } from 'react-bootstrap-icons';
 
 type TDraggableDialogProps = PropsWithChildren<{
   title: string
   dialogId: EDialog
   onClose: () => void
+  onRemove?: () => void
 }>
 
 export const DraggableDialog = ({
   title,
   dialogId,
   children,
+  onRemove,
   onClose,
 }: TDraggableDialogProps) => {
   const modal = useRef<HTMLDivElement>(null)
@@ -58,6 +61,9 @@ export const DraggableDialog = ({
           </Modal.Header>
           <Modal.Body>{children}</Modal.Body>
           <Modal.Footer>
+            {/* @ts-ignore-next-line */}
+            {onRemove && (<Button onClick={onRemove}><Trash/></Button>)}
+            &nbsp;
             {/* @ts-ignore-next-line */}
             <Button onClick={onClose}>Close</Button>
           </Modal.Footer>

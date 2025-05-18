@@ -1,6 +1,6 @@
 import { ThreeEvent } from "@react-three/fiber";
 import { ITool, TKeyEvents, TMouseEvents } from "../../types";
-import { Mesh, Vector3 } from "three";
+import { Mesh, Vector2, Vector3 } from "three";
 import { circle } from "../../../renderables/circle";
 import { setCursorToPoint } from "./utils";
 import { entitiesContext, surfaceContextInstance } from "../../../contexts";
@@ -13,8 +13,11 @@ export class PointSelect implements ITool {
     normal: Vector3
   }
 
+  private screen = new Vector2()
+
   readonly mouseEvents: TMouseEvents = {
     onPointerDown: (event) => {
+      this.screen.set(event.screenX, event.screenY)
     },
 
     onPointerMove: (event) => {
@@ -30,16 +33,22 @@ export class PointSelect implements ITool {
     },
 
     onPointerUp: (event) => {
+      this.screen.set(this.screen.x - event.screenX, this.screen.y - event.screenY)
+      if (this.screen.lengthSq() > 0.1) {
+        this.screen.set(event.screenX, event.screenY)
+        return
+      }
+
       // TODO create points node if not found
       if (!surfaceContextInstance.isActionAllowed()) {
         return
       }
-      const { activeNode } = entitiesContext
-      const data = activeNode && entitiesContext.getPoints(activeNode.key)
+      const addTo = entitiesContext.usePointsNode()
+      const data = entitiesContext.getPoints(addTo.key)
       const point = this.getCursorMeshPoint(event.point)
       if (data && point) {
         data.points.addPoint([point.x, point.y, point.z])
-        entitiesContext.updatePoints(activeNode.key, data.points)
+        entitiesContext.updatePoints(addTo.key, data.points)
       }
       event.stopPropagation()
     },
