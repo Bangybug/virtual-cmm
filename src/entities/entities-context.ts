@@ -4,6 +4,7 @@ import { projectStore } from '../contexts'
 import { EDialog } from './store/ui-store'
 import { PointsContext } from './points/points-context'
 import { TPointCollection } from './points/types'
+import { CurvesContext } from './curves/curves-context'
 
 let maxNodeId = 1
 
@@ -16,6 +17,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   #mesh?: Mesh
 
   readonly points = new PointsContext()
+  readonly curves = new CurvesContext()
 
   constructor() {
     super()
