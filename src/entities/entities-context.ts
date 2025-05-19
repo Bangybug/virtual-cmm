@@ -97,6 +97,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     if (this.#mesh !== mesh) {
       this.#mesh = mesh
       this.points.setMesh(mesh)
+      this.curves.setMesh(mesh)
     }
   }
 
