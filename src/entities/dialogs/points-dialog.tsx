@@ -86,13 +86,7 @@ export const PointsDialog = () => {
     if (!node.current) {
       return
     }
-    const p = entitiesContext.getPoints(node.current.key)
-    if (!p) {
-      return
-    }
-    const points = p.points.map(p => ([...p]))
-    const curve = (window as any).verb.geom.NurbsCurve.byPoints(points, 3);
-    console.log('CURVA BOBER', curve)
+    entitiesContext.makeCurveFromPoints(node.current.key)
   }, [node])
 
   if (!isVisible.current || !node.current) {

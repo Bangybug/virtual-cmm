@@ -1,9 +1,19 @@
-import { BufferAttribute, BufferGeometry, Object3D, Points, PointsMaterial, TextureLoader } from "three";
-import { Points as BuilderPoints } from "../cglib/builders/points";
+import {
+  BufferAttribute,
+  BufferGeometry,
+  Object3D,
+  Points,
+  PointsMaterial,
+  TextureLoader,
+} from 'three'
+import { Points as BuilderPoints } from '../cglib/builders/points'
 
-const texture = new TextureLoader().load( 'disc.png' )
+const texture = new TextureLoader().load('disc.png')
 
-export const createPoints = (from: BuilderPoints): Points => {
+export const createPoints = (
+  from: BuilderPoints,
+  color: number = 0x4d4dff
+): Points => {
   const geometry = new BufferGeometry()
   const pos = new BufferAttribute(from.vertices, 3)
   geometry.setAttribute('position', pos)
@@ -16,7 +26,7 @@ export const createPoints = (from: BuilderPoints): Points => {
     vertexColors: false,
     depthTest: false,
     opacity: 0.7,
-    color: 0x4d4dff
+    color,
   })
   const result = new Points(geometry, material)
   result.frustumCulled = false

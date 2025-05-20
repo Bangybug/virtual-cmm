@@ -1,17 +1,21 @@
-import { Object3D } from 'three'
+import { Group, Object3D, Points } from 'three'
 import { TNodeKey } from '../types'
+import { Points as BuilderPoints } from '../../cglib/builders/points'
 
 export type TNurbsCurve = {
   key: TNodeKey
   pointsNode: TNodeKey
-  renderable: Object3D
   curve: INurbsCurve
+  renderable: Group
+  controlPoints: Points
+  controlPointsBuilder: BuilderPoints
+  // segments: Object3D
 }
 
 export type Float = number
 export type Int = number
-export type Vector = ArrayLike<Float>
-export type Point = ArrayLike<Float>
+export type Vector = Array<Float>
+export type Point = Array<Float>
 
 /** 
  * A `KnotArray` is a non-decreasing sequence of floating point . Use the methods in `Check` to validate `KnotArray`'s

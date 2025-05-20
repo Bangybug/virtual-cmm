@@ -42,7 +42,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
 
       this.points.loadPoints(e.project)
       for (const key of this.points.data.keys()) {
-        const node = this.#nodes.find(n => n.key === key)
+        const node = this.#nodes.find((n) => n.key === key)
         if (node) {
           this.dispatchEvent({ type: 'update', node })
         }
@@ -69,8 +69,13 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     }
     if (i !== -1) {
       const node = this.#nodes[i]
-      if (node.class === EDialog.PointsDialog) {
-        this.points.onNodeRemoved(key)
+      switch (node.class) {
+        case EDialog.PointsDialog:
+          this.points.onNodeRemoved(key)
+          break
+        case EDialog.CurveDialog:
+          this.curves.onNodeRemoved(key)
+          break
       }
       this.#nodes.splice(i, 1)
       this.dispatchEvent({ type: 'remove', node })
@@ -108,7 +113,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     const newNode: TNode = {
       class: EDialog.PointsDialog,
       label: `points${maxNodeId}`,
-      key: ''
+      key: '',
     }
     this.#openNode = newNode
     this.newNode(newNode)
@@ -120,5 +125,28 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     const addTo = this.usePointsNode()
     this.points.addPoint(addTo.key, [v.x, v.y, v.z])
     this.dispatchEvent({ type: 'update', node: addTo })
+  }
+
+  makeCurveFromPoints(pointsKey: TNodeKey) {
+    const p = this.points.data.get(pointsKey)
+    if (!p) {
+      throw new Error(`Points node ${pointsKey} not found `)
+    }
+
+    const c = this.curves.getCurveNodeKey(pointsKey)
+    let curveNode = c && this.nodes.find((n) => n.key === c)
+    if (!curveNode) {
+      curveNode = {
+        class: EDialog.CurveDialog,
+        label: `curve${maxNodeId}`,
+        key: '',
+      }
+      this.newNode(curveNode)
+    }
+    if (this.#openNode !== curveNode) {
+      this.openNodeDialog(curveNode)
+    }
+    this.curves.updateCurve(curveNode.key, p)
+    this.dispatchEvent({ type: 'update', node: curveNode })
   }
 }
