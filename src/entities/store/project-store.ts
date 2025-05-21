@@ -1,5 +1,6 @@
 import { BaseEvent, EventDispatcher } from "three"
-import { TNode, TNodeKey, TPointCollection } from "../types"
+import { TNode, TNodeKey } from "../types"
+import { TPointCollection } from "../points/types"
 
 const VERSION = 1
 

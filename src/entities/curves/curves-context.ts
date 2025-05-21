@@ -71,5 +71,9 @@ export class CurvesContext {
       c.curve = curve
       updatePoints(p.points, c.controlPoints)
     }
+
+    if (!c.renderable.parent && this.#mesh) {
+      this.#mesh.parent?.add(c.renderable)
+    }
   }
 }

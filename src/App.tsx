@@ -11,6 +11,7 @@ import { ButtonGroup } from 'react-bootstrap'
 import { ToolButtons } from './tool-buttons'
 import { Tree } from './entities/tree/tree'
 import { PointsDialog } from './entities/dialogs/points-dialog'
+import { CurveDialog } from './entities/dialogs/curve-dialog'
 
 function App() {
   return (
@@ -70,6 +71,7 @@ function App() {
           <Tree />
         </div>
         <PointsDialog />
+        <CurveDialog />
       </main>
     </>
   )
