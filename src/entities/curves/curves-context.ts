@@ -1,10 +1,16 @@
 import { Group, Mesh } from 'three'
 import { TNodeKey } from '../types'
-import { TNurbsCurve } from './types'
+import { INurbsCurve, TNurbsCurve } from './types'
 import { TPointCollection } from '../points/types'
-import { createNurbsCurveByPoints } from './curve-factory'
+import {
+  createNurbsCurve,
+  createNurbsCurveByKnotsControlPointsWeights,
+  createNurbsCurveByPoints,
+} from './curve-factory'
 import { createPoints, updatePoints } from '../../renderables/points'
 import { Points } from '../../cglib/builders/points'
+import { createSegments, updateSegments } from '../../renderables/segments'
+import { TProject } from '../store/project-store'
 
 export class CurvesContext {
   #curves = new Map<TNodeKey, TNurbsCurve>()
@@ -37,39 +43,66 @@ export class CurvesContext {
     }
   }
 
-  updateCurve(curveNodeKey: TNodeKey, p: TPointCollection) {
-    let c = this.#curves.get(curveNodeKey)
+  loadCurves(project: TProject) {
+    this.#curves.clear()
+    if (project.curves) {
+      for (const [nodeKey, value] of Object.entries(project.curves)) {
+        const curve = createNurbsCurveByKnotsControlPointsWeights(
+          value.degree,
+          value.knots,
+          value.controlPoints,
+          value.weights
+        )
+        this.updateCurveInternal(nodeKey, value.pointsNode, curve)
+      }
+    }
+  }
 
+  updateCurveFromPoints(curveNodeKey: TNodeKey, p: TPointCollection) {
     const points = p.points.map((p) => [...p])
-    // TODO allow changing of control points
     const curve = createNurbsCurveByPoints(points, 3)
+    this.updateCurveInternal(curveNodeKey, p.key, curve)
+  }
 
-    const controlPointsBuilder = c?.controlPointsBuilder || new Points({
+  private updateCurveInternal = (
+    curveNodeKey: TNodeKey,
+    pointsNodeKey: TNodeKey,
+    curve: INurbsCurve
+  ) => {
+    let c = this.#curves.get(curveNodeKey)
+    const controlPointsBuilder =
+      c?.controlPointsBuilder ||
+      new Points({
         reserveVertices: curve.controlPoints.length,
         componentCount: 3,
       })
+    const curveControlPoints = curve.controlPoints()
     controlPointsBuilder.setUsedCount(0)
-    controlPointsBuilder.reserve(curve.controlPoints.length)
-    for (const cp of curve.controlPoints()) {
+    controlPointsBuilder.reserve(curveControlPoints.length)
+    for (const cp of curveControlPoints) {
       controlPointsBuilder.addPoint(cp)
     }
-    
-    const controlPoints = c?.controlPoints || createPoints(p.points, 0xdd0000)
-    
+
+    const controlPoints =
+      c?.controlPoints || createPoints(controlPointsBuilder, 0xdd0000)
+    const controlSegments =
+      c?.controlSegments || createSegments(controlPointsBuilder, 0xbb0000)
 
     if (!c) {
       c = {
         key: curveNodeKey,
-        pointsNode: p.key,
+        pointsNode: pointsNodeKey,
         curve,
         controlPoints,
         controlPointsBuilder,
-        renderable: new Group().add(controlPoints),
+        controlSegments,
+        renderable: new Group().add(controlPoints, controlSegments),
       } satisfies TNurbsCurve
       this.#curves.set(curveNodeKey, c)
     } else {
       c.curve = curve
-      updatePoints(p.points, c.controlPoints)
+      updatePoints(controlPointsBuilder, c.controlPoints)
+      updateSegments(controlPointsBuilder, c.controlSegments)
     }
 
     if (!c.renderable.parent && this.#mesh) {

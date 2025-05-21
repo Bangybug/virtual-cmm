@@ -1,4 +1,4 @@
-import { Group, Object3D, Points } from 'three'
+import { Group, Line, Object3D, Points } from 'three'
 import { TNodeKey } from '../types'
 import { Points as BuilderPoints } from '../../cglib/builders/points'
 
@@ -8,6 +8,7 @@ export type TNurbsCurve = {
   curve: INurbsCurve
   renderable: Group
   controlPoints: Points
+  controlSegments: Line
   controlPointsBuilder: BuilderPoints
   // segments: Object3D
 }
@@ -17,10 +18,10 @@ export type Int = number
 export type Vector = Array<Float>
 export type Point = Array<Float>
 
-/** 
+/**
  * A `KnotArray` is a non-decreasing sequence of floating point . Use the methods in `Check` to validate `KnotArray`'s
  */
-export type KnotArray = Array<Float>;
+export type KnotArray = Array<Float>
 
 export type Interval<T> = {
   min: T
@@ -28,17 +29,16 @@ export type Interval<T> = {
 }
 
 export type CurveLengthSample = {
-  u: Float;
-  len: Float;
+  u: Float
+  len: Float
 }
-
 
 export interface ICurve {
   /**
    * Provide the NURBS representation of the curve
    * @returns NurbsCurveData object representing the curve
    */
-  asNurbs(): NurbsCurveData
+  asNurbs(): TNurbsCurveData
 
   /**
    * Obtain the parametric domain of the curve
@@ -62,15 +62,13 @@ export interface ICurve {
   derivatives(u: Float, numDerivs: Int): ArrayLike<Vector>
 }
 
-export class NurbsCurveData {
-  constructor(
-    /** integer degree of curve */
-    public degree: Int,
-    /** array of nondecreasing knot values */
-    public knots: Array<Float>,
-    /** 2d array of control points, where each control point is an array of length (dim) */
-    public controlPoints: Array<Point>
-  ) { }
+export type TNurbsCurveData = {
+  /** integer degree of curve */
+  degree: Int
+  /** array of nondecreasing knot values */
+  knots: Array<Float>
+  /** 2d array of control points, where each control point is an array of length (dim) */
+  controlPoints: Array<Point>
 }
 
 export interface INurbsCurve extends ICurve {
@@ -86,7 +84,7 @@ export interface INurbsCurve extends ICurve {
   //Array of weight values
   weights(): Array<Float>
 
-  asNurbs(): NurbsCurveData
+  asNurbs(): TNurbsCurveData
 
   clone(): INurbsCurve
 
@@ -100,7 +98,7 @@ export interface INurbsCurve extends ICurve {
 
   /**
    * Determine the closest point on the curve to the given point
-   * @param pt 
+   * @param pt
    */
   closestPoint(pt: Point): Point
 
@@ -108,7 +106,7 @@ export interface INurbsCurve extends ICurve {
 
   /**
    * Determine the closest parameter on the curve to the given point
-   * @param pt 
+   * @param pt
    */
   closestParam(pt: Point): Float
 

@@ -23,7 +23,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     super()
 
     projectStore.addEventListener('save', (e) => {
-      e.setProject(this.#nodes, this.points.data)
+      e.setProject(this.#nodes, this.points.data, this.curves.data)
     })
 
     projectStore.addEventListener('load', (e) => {
@@ -42,6 +42,14 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
 
       this.points.loadPoints(e.project)
       for (const key of this.points.data.keys()) {
+        const node = this.#nodes.find((n) => n.key === key)
+        if (node) {
+          this.dispatchEvent({ type: 'update', node })
+        }
+      }
+
+      this.curves.loadCurves(e.project)
+      for (const key of this.curves.data.keys()) {
         const node = this.#nodes.find((n) => n.key === key)
         if (node) {
           this.dispatchEvent({ type: 'update', node })
@@ -146,7 +154,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     if (this.#openNode !== curveNode) {
       this.openNodeDialog(curveNode)
     }
-    this.curves.updateCurve(curveNode.key, p)
+    this.curves.updateCurveFromPoints(curveNode.key, p)
     this.dispatchEvent({ type: 'update', node: curveNode })
   }
 }
