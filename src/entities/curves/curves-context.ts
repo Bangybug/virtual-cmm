@@ -3,7 +3,6 @@ import { TNodeKey } from '../types'
 import { INurbsCurve, TNurbsCurve } from './types'
 import { TPointCollection } from '../points/types'
 import {
-  createNurbsCurve,
   createNurbsCurveByKnotsControlPointsWeights,
   createNurbsCurveByPoints,
 } from './curve-factory'
@@ -11,6 +10,11 @@ import { createPoints, updatePoints } from '../../renderables/points'
 import { Points } from '../../cglib/builders/points'
 import { createSegments, updateSegments } from '../../renderables/segments'
 import { TProject } from '../store/project-store'
+import {
+  TESSELATION_SCALE,
+  tessellateCurve,
+  updateTessellatedCurve,
+} from '../../renderables/curve'
 
 export class CurvesContext {
   #curves = new Map<TNodeKey, TNurbsCurve>()
@@ -59,7 +63,7 @@ export class CurvesContext {
   }
 
   updateCurveFromPoints(curveNodeKey: TNodeKey, p: TPointCollection) {
-    const points = p.points.map((p) => [...p])
+    const points = p.points.map((p) => p.map(i => i*TESSELATION_SCALE))
     const curve = createNurbsCurveByPoints(points, 3)
     this.updateCurveInternal(curveNodeKey, p.key, curve)
   }
@@ -70,6 +74,7 @@ export class CurvesContext {
     curve: INurbsCurve
   ) => {
     let c = this.#curves.get(curveNodeKey)
+
     const controlPointsBuilder =
       c?.controlPointsBuilder ||
       new Points({
@@ -80,13 +85,24 @@ export class CurvesContext {
     controlPointsBuilder.setUsedCount(0)
     controlPointsBuilder.reserve(curveControlPoints.length)
     for (const cp of curveControlPoints) {
-      controlPointsBuilder.addPoint(cp)
+      controlPointsBuilder.addPoint(cp.map(i => i/TESSELATION_SCALE))
     }
 
     const controlPoints =
       c?.controlPoints || createPoints(controlPointsBuilder, 0xdd0000)
     const controlSegments =
       c?.controlSegments || createSegments(controlPointsBuilder, 0xbb0000)
+    controlSegments.visible = false
+
+    const tessellatedCurveBuilder =
+      c?.tessellatedCurveBuilder ||
+      new Points({
+        reserveVertices: 0,
+        componentCount: 3,
+      })
+    const tessellatedCurve =
+      c?.tessellatedCurve ||
+      tessellateCurve(curve, tessellatedCurveBuilder, 0xbb0000)
 
     if (!c) {
       c = {
@@ -96,13 +112,20 @@ export class CurvesContext {
         controlPoints,
         controlPointsBuilder,
         controlSegments,
-        renderable: new Group().add(controlPoints, controlSegments),
+        tessellatedCurveBuilder,
+        tessellatedCurve,
+        renderable: new Group().add(
+          controlPoints,
+          controlSegments,
+          tessellatedCurve
+        ),
       } satisfies TNurbsCurve
       this.#curves.set(curveNodeKey, c)
     } else {
       c.curve = curve
       updatePoints(controlPointsBuilder, c.controlPoints)
       updateSegments(controlPointsBuilder, c.controlSegments)
+      updateTessellatedCurve(curve, tessellatedCurveBuilder, c.tessellatedCurve)
     }
 
     if (!c.renderable.parent && this.#mesh) {

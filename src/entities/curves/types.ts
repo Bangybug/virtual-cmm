@@ -1,4 +1,4 @@
-import { Group, Line, Object3D, Points } from 'three'
+import { Group, Line, Points } from 'three'
 import { TNodeKey } from '../types'
 import { Points as BuilderPoints } from '../../cglib/builders/points'
 
@@ -10,7 +10,8 @@ export type TNurbsCurve = {
   controlPoints: Points
   controlSegments: Line
   controlPointsBuilder: BuilderPoints
-  // segments: Object3D
+  tessellatedCurveBuilder: BuilderPoints
+  tessellatedCurve: Line
 }
 
 export type Float = number
