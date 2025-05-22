@@ -1,4 +1,4 @@
-import { TypedArray } from 'three'
+import { TypedArray, Vector3 } from 'three'
 
 type TPointsProps = {
   reserveVertices: number
@@ -36,6 +36,8 @@ export class Points {
   private arrayFactory = (count: number): TypedArray => new Float32Array(count)
 
   private tmpGetPointTarget = Array<number>()
+
+  private tmpGetPointTargetV3 = new Vector3()
 
   private verticesArray: TypedArray
 
@@ -150,6 +152,16 @@ export class Points {
     for (let i = 0; i < componentCount; ++i) {
       ret[i] = this.verticesArray[offset + i]
     }
+
+    return ret
+  }
+
+  getPointAsV3At(index: number, target?: Vector3): Vector3 {
+    const ret = target || this.tmpGetPointTargetV3
+    const { componentCount } = this.props
+
+    const offset = index * componentCount
+    ret.fromArray(this.verticesArray, offset)
 
     return ret
   }

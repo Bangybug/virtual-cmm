@@ -1,9 +1,10 @@
-import { Mesh } from "three";
+import { Group, Mesh } from "three";
 import { Points } from "../../cglib/builders/points";
 import { createPoints, updatePoints } from "../../renderables/points";
 import { TProject } from "../store/project-store";
 import { TNodeKey } from "../types";
 import { TPointCollection, TPointKey } from "./types";
+import { createSegments, updateSegments } from "../../renderables/segments";
 
 export class PointsContext {
   #points = new Map<TNodeKey, TPointCollection>()
@@ -44,10 +45,15 @@ export class PointsContext {
   updatePoints(key: TNodeKey, points: Points) {
     let p = this.#points.get(key)
     if (!p) {
+      const pointsRenderable = createPoints(points)
+      const segmentsRenderable = createSegments(points)
+
       p = {
         points,
         key,
-        renderable: createPoints(points),
+        renderable: new Group().add(pointsRenderable, segmentsRenderable),
+        segmentsRenderable,
+        pointsRenderable,
         pointKeys: Array.from({ length: points.getUsedCount() }).map((n, i) => i),
         lastPointKey: points.getUsedCount()
       }
@@ -57,7 +63,8 @@ export class PointsContext {
       for (let i = p.pointKeys.length; i < points.getUsedCount(); ++i) {
         p.pointKeys.push(p.lastPointKey++)
       }
-      updatePoints(points, p.renderable)
+      updatePoints(points, p.pointsRenderable)
+      updateSegments(points, p.segmentsRenderable)
     }
 
     if (!p.renderable.parent && this.#mesh) {
@@ -67,13 +74,7 @@ export class PointsContext {
 
   createFor(key: TNodeKey) {
     const points = new Points({ reserveVertices: 32, componentCount: 3 })
-    this.#points.set(key, {
-      points,
-      key,
-      renderable: createPoints(points),
-      pointKeys: [],
-      lastPointKey: 0,
-    })
+    this.updatePoints(key, points)
   }
 
   removePointByKey(nodeKey: TNodeKey, pointKey: TPointKey): TPointKey | undefined {
@@ -87,7 +88,8 @@ export class PointsContext {
         }
         p.pointKeys.splice(index, 1)
         p.points.splice(index, 1)
-        updatePoints(p.points, p.renderable)
+        updatePoints(p.points, p.pointsRenderable)
+        updateSegments(p.points, p.segmentsRenderable)
       }
     }
     return result

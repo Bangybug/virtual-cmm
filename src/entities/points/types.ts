@@ -1,14 +1,16 @@
-import { Object3D } from "three"
-import { Points } from "../../cglib/builders/points"
+import { Group, Line, Object3D, Points } from "three"
+import { Points as BuilderPoints } from "../../cglib/builders/points"
 import { TNodeKey } from "../types"
 
 export type TPointKey = number
 
 export type TPointCollection = {
-  points: Points
+  points: BuilderPoints
   pointKeys: TPointKey[]
   lastPointKey: TPointKey
   key: TNodeKey
   selectedKey?: TPointKey
-  renderable: Object3D
+  renderable: Group
+  pointsRenderable: Points
+  segmentsRenderable: Line
 }

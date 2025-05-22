@@ -36,7 +36,7 @@ export const createPoints = (
   return result
 }
 
-export const updatePoints = (from: BuilderPoints, to: Object3D) => {
+export const updatePoints = (from: BuilderPoints, to: Points) => {
   const p = to as Points
   if (p.isPoints) {
     const pos = p.geometry.getAttribute('position')
