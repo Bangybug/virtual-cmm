@@ -8,7 +8,7 @@ import {
 import { Points as BuilderPoints } from '../cglib/builders/points'
 import { INurbsCurve } from '../entities/curves/types'
 
-export const TESSELATION_SCALE = 100
+export const TESSELATION_SCALE = 1000
 
 export const tessellateCurve = (
   curve: INurbsCurve,

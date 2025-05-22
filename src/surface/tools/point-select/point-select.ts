@@ -30,6 +30,8 @@ export class PointSelect implements ITool {
           setCursorToPoint({ mesh: this._mesh, cursor: circle, point: event.point, faceIndex: event.faceIndex })
         )
       }
+
+      event.stopPropagation()
     },
 
     onPointerUp: (event) => {

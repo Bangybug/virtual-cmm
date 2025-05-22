@@ -6,10 +6,10 @@ import {
   INTERSECTED,
   ShapecastIntersection,
 } from 'three-mesh-bvh'
-import { AdjacencyGraph } from './graphs/adjacency-graph'
-import { assertBufferAttribute } from './utils'
-import { getAdjacencyGraph } from '../hooks/use-adjacency-graph'
-import { CombinedIterator } from './iterators/combined-iterator'
+import { AdjacencyGraph } from '../graphs/adjacency-graph'
+import { assertBufferAttribute } from '../utils'
+import { getAdjacencyGraph } from '../../hooks/use-adjacency-graph'
+import { CombinedIterator } from '../iterators/combined-iterator'
 
 export class SphereVolumeQuery {
   public readonly results = {

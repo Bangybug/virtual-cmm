@@ -97,6 +97,7 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.mouseEvents.onPointerLeave()
       }
+      this.enableCamera()
     },
 
     onPointerEnter: (event: ThreeEvent<PointerEvent>) => {
@@ -105,6 +106,7 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
         this.#activeTool.mouseEvents.onPointerEnter?.(event)
         this.threeState?.invalidate(10)
       }
+      this.disableCamera()
     },
   }
 

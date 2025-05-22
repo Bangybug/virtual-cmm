@@ -1,6 +1,6 @@
 import { BufferGeometry } from "three"
 import { AdjacencyGraph } from "../cglib/graphs/adjacency-graph"
-import { SphereVolumeQuery } from "../cglib/sphere-volume-query"
+import { SphereVolumeQuery } from "../cglib/queries/sphere-volume-query"
 import { SurfaceContext } from "./surface-context"
 
 type TAuxiliary = {
