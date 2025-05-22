@@ -44,7 +44,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
       for (const key of this.points.data.keys()) {
         const node = this.#nodes.find((n) => n.key === key)
         if (node) {
-          this.dispatchEvent({ type: 'update', node })
+          this.updateNode(node)
         }
       }
 
@@ -52,7 +52,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
       for (const key of this.curves.data.keys()) {
         const node = this.#nodes.find((n) => n.key === key)
         if (node) {
-          this.dispatchEvent({ type: 'update', node })
+          this.updateNode(node)
         }
       }
     })
@@ -132,7 +132,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   addPoint(v: Vector3) {
     const addTo = this.usePointsNode()
     this.points.addPoint(addTo.key, [v.x, v.y, v.z])
-    this.dispatchEvent({ type: 'update', node: addTo })
+    this.updateNode(addTo)
   }
 
   makeCurveFromPoints(pointsKey: TNodeKey) {
@@ -143,6 +143,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
 
     const c = this.curves.getCurveNodeKey(pointsKey)
     let curveNode = c && this.nodes.find((n) => n.key === c)
+    const isNewCurveNode = !curveNode
     if (!curveNode) {
       curveNode = {
         class: EDialog.CurveDialog,
@@ -151,10 +152,13 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
       }
       this.newNode(curveNode)
     }
-    if (this.#openNode !== curveNode) {
-      this.openNodeDialog(curveNode)
-    }
     this.curves.updateCurveFromPoints(curveNode.key, p)
-    this.dispatchEvent({ type: 'update', node: curveNode })
+    if (isNewCurveNode) {
+      this.openNodeDialog(curveNode)
+    }  
+  }
+
+  updateNode(node: TNode) {
+    this.dispatchEvent({ type: 'update', node })
   }
 }

@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { entitiesContext } from '../../contexts'
+import { useEffect, useState } from 'react'
+import { entitiesContext, surfaceContextInstance } from '../../contexts'
 import { IEntitiesEvent, TNode } from '../types'
 import Form from 'react-bootstrap/esm/Form'
 import { EDialog } from '../store/ui-store'
@@ -8,6 +8,7 @@ import { useRefState } from '../../hooks/use-ref-state'
 
 export const CurveDialog = () => {
   const [isVisible, setIsVisible] = useRefState(false)
+  const [label, setLabel] = useState('')
   const [node, setNode] = useRefState<TNode | null>(null)
   // const [data, setData] = useState<TNurbsCurve | undefined>(undefined)
 
@@ -16,6 +17,7 @@ export const CurveDialog = () => {
       const node = event.node
       if (node?.class === EDialog.CurveDialog) {
         setIsVisible(true)
+        setLabel(node.label)
         setNode(node)
         // const p = entitiesContext.getPoints(node.key)
         // setData(p ? { ...p } : p)
@@ -47,12 +49,13 @@ export const CurveDialog = () => {
 
   return (
     <DraggableDialog
-      title="Точки"
+      title="Кривая nurbs"
       dialogId={EDialog.CurveDialog}
       onClose={() => setIsVisible(false)}
       onRemove={() => {
         setIsVisible(false)
         entitiesContext.removeNode(useNode.key)
+        surfaceContextInstance.invalidate()
       }}
     >
       <br />
@@ -60,9 +63,11 @@ export const CurveDialog = () => {
         type="text"
         placeholder="name"
         autoFocus
-        value={useNode.label}
+        value={label}
         onChange={(e) => {
           useNode.label = e.target.value
+          setLabel(useNode.label)
+          entitiesContext.updateNode(useNode)
         }}
       />
 

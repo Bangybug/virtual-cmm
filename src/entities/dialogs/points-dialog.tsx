@@ -18,6 +18,7 @@ import { Bezier } from 'react-bootstrap-icons'
 export const PointsDialog = () => {
   const [isVisible, setIsVisible] = useRefState(false)
   const [node, setNode] = useRefState<TNode | null>(null)
+  const [label, setLabel] = useState('')
   const [data, setData] = useState<TPointCollection | undefined>(undefined)
   const [selected, setSelected] = useState<number | undefined>()
 
@@ -27,6 +28,7 @@ export const PointsDialog = () => {
       if (node?.class === EDialog.PointsDialog) {
         setIsVisible(true)
         setNode(node)
+        setLabel(node.label)
         const p = entitiesContext.getPoints(node.key)
         setData(p ? { ...p } : p)
         setSelected(p?.selectedKey)
@@ -87,6 +89,7 @@ export const PointsDialog = () => {
       return
     }
     entitiesContext.makeCurveFromPoints(node.current.key)
+    surfaceContextInstance.invalidate()
   }, [node])
 
   if (!isVisible.current || !node.current) {
@@ -132,9 +135,11 @@ export const PointsDialog = () => {
         type="text"
         placeholder="name"
         autoFocus
-        value={useNode.label}
+        value={label}
         onChange={(e) => {
           useNode.label = e.target.value
+          setLabel(useNode.label)
+          entitiesContext.updateNode(useNode)
         }}
       />
 
