@@ -1,4 +1,4 @@
-import { BufferAttribute, Mesh, Object3D, Vector3 } from "three"
+import { BufferAttribute, Mesh, Object3D, Vector3, Vector3Like } from "three"
 import { assertBufferAttribute } from "../../../cglib/utils"
 import { getAdjacencyGraph } from "../../../hooks/use-adjacency-graph"
 import { FacesIterator } from "../../../cglib/iterators/faces-iterator"
@@ -36,17 +36,7 @@ type TCursorPosition = {
   faceIndex: number
 }
 
-export const setCursorToPoint = ({
-  mesh,
-  point,
-  cursor,
-  faceIndex,
-}: TCursorPosition) => {
-  const bvh = mesh.geometry.boundsTree
-  if (!bvh) {
-    return
-  }
-
+export const findClosestPointIndexInFace = (mesh: Mesh, point: Vector3Like, faceIndex: number) => {
   let d = Number.POSITIVE_INFINITY
   let di = 0
   let pointIndex = 0
@@ -74,6 +64,21 @@ export const setCursorToPoint = ({
     }
   }
 
+  return pointIndex
+}
+
+export const setCursorToPoint = ({
+  mesh,
+  point,
+  cursor,
+  faceIndex,
+}: TCursorPosition) => {
+  const bvh = mesh.geometry.boundsTree
+  if (!bvh) {
+    return
+  }
+
+  const pointIndex = findClosestPointIndexInFace(mesh, point, faceIndex)
   const adjGraph = getAdjacencyGraph(mesh)!
   const faceGraph = adjGraph.faceGraph
 

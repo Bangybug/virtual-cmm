@@ -19,13 +19,13 @@ export class ClipQuery {
     localPlane: new Plane(),
   }
 
-  #result = {
+  result = {
     segments: new Points({ reserveVertices: 32000, componentCount: 3 }),
   }
 
   public setQueryParams(localPlane: Plane) {
     this.#query.localPlane.copy(localPlane)
-    this.#result.segments.setUsedCount(0)
+    this.result.segments.setUsedCount(0)
   }
 
   public intersectsBounds = (
@@ -48,7 +48,7 @@ export class ClipQuery {
     // check each triangle edge to see if it intersects with the plane. If so then
     // add it to the list of segments.
     let count = 0
-    const segments = this.#result.segments
+    const segments = this.result.segments
 
     tempLine.start.copy(tri.a)
     tempLine.end.copy(tri.b)

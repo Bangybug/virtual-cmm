@@ -1,4 +1,4 @@
-import { BaseEvent, EventDispatcher } from 'three'
+import { BaseEvent, EventDispatcher, Vector3Like } from 'three'
 import { TNode, TNodeKey } from '../types'
 import { TPointCollection } from '../points/types'
 import { TNurbsCurve, TNurbsCurveData } from '../curves/types'
@@ -8,11 +8,21 @@ const VERSION = 1
 export type TProject = {
   version: number
   tree?: TNode[]
-  points?: Record<TNodeKey, { data: number[] }>
-  curves?: Record<
-    TNodeKey,
-    TNurbsCurveData & { pointsNode: TNodeKey; weights: number[] }
-  >
+  points?: Record<TNodeKey, TPointStore>
+  curves?: Record<TNodeKey, TCurveStore>
+}
+
+export type TPointStore = {
+  data: number[]
+  crossSection?: {
+    normal: Vector3Like
+    point: Vector3Like
+  }
+}
+
+export type TCurveStore = TNurbsCurveData & {
+  pointsNode: TNodeKey
+  weights: number[]
 }
 
 export interface IProjectLoadEvent extends BaseEvent {
@@ -80,6 +90,7 @@ export class ProjectStore extends EventDispatcher<TProjectEvents> {
         (acc: TProject['points'], cur) => {
           const key = cur[0]
           acc![key] = {
+            crossSection: cur[1].crossSection,
             data: cur[1].points.map((p) => [...p]).flat(),
           }
           return acc

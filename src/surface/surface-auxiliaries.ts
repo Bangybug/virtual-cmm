@@ -2,10 +2,12 @@ import { BufferGeometry } from "three"
 import { AdjacencyGraph } from "../cglib/graphs/adjacency-graph"
 import { SphereVolumeQuery } from "../cglib/queries/sphere-volume-query"
 import { SurfaceContext } from "./surface-context"
+import { ClipQuery } from "../cglib/queries/clip-query"
 
 type TAuxiliary = {
   adjacencyGraph?: AdjacencyGraph
   sphereVolumeQuery?: SphereVolumeQuery
+  clipQuery?: ClipQuery
 }
 
 export class SurfaceAuxiliaries {
@@ -54,5 +56,15 @@ export class SurfaceAuxiliaries {
     }
 
     return aux.sphereVolumeQuery
+  }
+
+  public useClipQuery(geometry: BufferGeometry) {
+    const aux = this.useAux(geometry.uuid)
+
+    if (!aux.clipQuery) {
+      aux.clipQuery = new ClipQuery()
+    }
+
+    return aux.clipQuery
   }
 }

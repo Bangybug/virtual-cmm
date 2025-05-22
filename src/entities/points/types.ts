@@ -1,4 +1,4 @@
-import { Group, Line, Object3D, Points } from "three"
+import { Group, Line, Points, Vector3Like } from "three"
 import { Points as BuilderPoints } from "../../cglib/builders/points"
 import { TNodeKey } from "../types"
 
@@ -13,4 +13,8 @@ export type TPointCollection = {
   renderable: Group
   pointsRenderable: Points
   segmentsRenderable: Line
+  crossSection?: {
+    normal: Vector3Like
+    point: Vector3Like
+  }
 }

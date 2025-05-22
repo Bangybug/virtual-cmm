@@ -1,10 +1,15 @@
-import { EventDispatcher, Mesh, Vector3 } from 'three'
+import { EventDispatcher, Mesh, Vector3, Vector3Like } from 'three'
 import { TEntitiesEvents, TNode, TNodeKey } from './types'
 import { projectStore } from '../contexts'
 import { EDialog } from './store/ui-store'
 import { PointsContext } from './points/points-context'
 import { TPointCollection } from './points/types'
 import { CurvesContext } from './curves/curves-context'
+import { useBVH } from '../hooks/use-bvh'
+import { getAdjacencyGraph } from '../hooks/use-adjacency-graph'
+import { ArrowReturnLeft } from 'react-bootstrap-icons'
+import { assertBufferAttribute } from '../cglib/utils'
+import { calculateAveragePlaneNormal } from '../surface/tools/point-select/utils'
 
 let maxNodeId = 1
 
@@ -114,6 +119,18 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     }
   }
 
+  updateNode(node: TNode) {
+    this.dispatchEvent({ type: 'update', node })
+  }
+
+  private assertPoints(pointsKey: TNodeKey) {
+    const p = this.points.data.get(pointsKey)
+    if (!p) {
+      throw new Error(`Points node ${pointsKey} not found `)
+    }
+    return p
+  }
+
   private usePointsNode(): TNode {
     if (this.#openNode?.class === EDialog.PointsDialog) {
       return this.#openNode
@@ -136,11 +153,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   }
 
   makeCurveFromPoints(pointsKey: TNodeKey) {
-    const p = this.points.data.get(pointsKey)
-    if (!p) {
-      throw new Error(`Points node ${pointsKey} not found `)
-    }
-
+    const p = this.assertPoints(pointsKey)
     const c = this.curves.getCurveNodeKey(pointsKey)
     let curveNode = c && this.nodes.find((n) => n.key === c)
     const isNewCurveNode = !curveNode
@@ -155,10 +168,54 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     this.curves.updateCurveFromPoints(curveNode.key, p)
     if (isNewCurveNode) {
       this.openNodeDialog(curveNode)
-    }  
+    }
   }
 
-  updateNode(node: TNode) {
-    this.dispatchEvent({ type: 'update', node })
+  makeCrossSection(fromPoints: TNodeKey) {
+    const from = this.assertPoints(fromPoints)
+    if (from.points.getUsedCount() < 2) {
+      console.warn('Insufficient points')
+      return
+    }
+    const mesh = this.#mesh
+    if (!mesh) {
+      console.warn('Mesh not set')
+      return
+    }
+    const bvh = mesh.geometry.boundsTree
+    if (!bvh) {
+      console.warn('Bvh not set')
+      return
+    }
+
+    const a = from.points.getPointAsV3At(0, new Vector3())
+    const b = from.points.getPointAsV3At(1, new Vector3())
+    const pa = bvh.closestPointToPoint(a)
+    const pb = bvh.closestPointToPoint(b)
+
+    if (!pa || !pb) {
+      console.warn('Points not available in mesh')
+      return
+    }
+
+    const adjGraph = getAdjacencyGraph(mesh)!
+    const faceGraph = adjGraph.faceGraph
+
+    const indices = new Set<number>()
+    const faces = faceGraph.adjacentFaces(pointIndex)
+    for (const f of faces) {
+      indices.add(f.a)
+      indices.add(f.b)
+      indices.add(f.c)
+    }
+
+    const positionAttr = assertBufferAttribute(mesh.geometry, 'position')
+    const normalAttr = assertBufferAttribute(mesh.geometry, 'normal')
+    tmp.localPoint.fromBufferAttribute(positionAttr, pointIndex)
+    const normal = calculateAveragePlaneNormal({
+      indices: tmp.indices,
+      positionAttr,
+      normalAttr,
+    })
   }
 }
