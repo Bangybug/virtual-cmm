@@ -170,64 +170,20 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   }
 
   makeCrossSection(fromPoints: TNodeKey) {
-    const tools = this.points.withGeometry(fromPoints)
-    if (!tools) {
+    const segments = this.points.createCrossSection(fromPoints)
+    if (!segments) {
       return
     }
-
-    const { points, bvh, mesh, faceGraph } = tools
-
-    const a = points.getPointAsV3At(0, new Vector3())
-    const b = points.getPointAsV3At(1, new Vector3())
-    const pa = bvh.closestPointToPoint(a)
-    const pb = bvh.closestPointToPoint(b)
-
-    if (!pa || !pb) {
-      console.warn('Points not available in mesh')
-      return
-    }
-
-    let pointIndex = findClosestPointIndexInFace(mesh, pa.point, pa.faceIndex)
-    const indices = new Set<number>()
-    let faces = faceGraph.adjacentFaces(pointIndex)
-    for (const f of faces) {
-      indices.add(f.a)
-      indices.add(f.b)
-      indices.add(f.c)
-    }
-    pointIndex = findClosestPointIndexInFace(mesh, pb.point, pb.faceIndex)
-    faces = faceGraph.adjacentFaces(pointIndex)
-    for (const f of faces) {
-      indices.add(f.a)
-      indices.add(f.b)
-      indices.add(f.c)
-    }
-
-    const positionAttr = assertBufferAttribute(mesh.geometry, 'position')
-    const normalAttr = assertBufferAttribute(mesh.geometry, 'normal')
-    const normal = calculateAveragePlaneNormal({
-      indices,
-      positionAttr,
-      normalAttr,
-    })
-
-    const dir = a.sub(b)
-    const planeNormal = normal.cross(dir).normalize()
-
-    const clipQuery = getClipQuery(mesh)
-    clipQuery.setQueryParams(new Plane().setFromNormalAndCoplanarPoint(planeNormal, b))
-    bvh.shapecast(clipQuery)
-
 
     const newNode: TNode = {
       class: EDialog.PointsDialog,
       label: `Section${maxNodeId}`,
-      key: '', 
+      key: '',
     }
-    
+
     this.newNode(newNode)
     this.points.createFor(newNode.key)
-    this.points.updatePoints(newNode.key, clipQuery.result.segments.clone())
+    this.points.updatePoints(newNode.key, segments)
     this.openNodeDialog(newNode)
   }
 }
