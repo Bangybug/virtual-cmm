@@ -5,6 +5,7 @@ import { TProject } from "../store/project-store";
 import { TNodeKey } from "../types";
 import { TPointCollection, TPointKey } from "./types";
 import { createSegments, updateSegments } from "../../renderables/segments";
+import { getAdjacencyGraph } from "../../hooks/use-adjacency-graph";
 
 export class PointsContext {
   #points = new Map<TNodeKey, TPointCollection>()
@@ -125,5 +126,32 @@ export class PointsContext {
       }
       this.updatePoints(nodeKey, data.points)
     }
+  }
+
+  withGeometry = (pointsKey: TNodeKey) => {
+    const from = this.#points.get(pointsKey)
+    if (!from) {
+      console.warn('Points not defined')
+      return
+    }
+    if (from.points.getUsedCount() < 2) {
+      console.warn('Insufficient points')
+      return
+    }
+    const mesh = this.#mesh
+    if (!mesh) {
+      console.warn('Mesh not set')
+      return
+    }
+    const bvh = mesh.geometry.boundsTree
+    if (!bvh) {
+      console.warn('Bvh not set')
+      return
+    }
+
+    const adjGraph = getAdjacencyGraph(mesh)
+    const faceGraph = adjGraph.faceGraph
+
+    return {points: from.points, mesh, bvh, faceGraph}
   }
 }

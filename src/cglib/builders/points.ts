@@ -193,4 +193,11 @@ export class Points {
       this.usedCount * this.props.componentCount)
     this.usedCount -= deleteCount
   }
+
+  clone(): Points {
+    const result = new Points({ reserveVertices: this.usedCount, componentCount: this.props.componentCount })
+    result.verticesArray.set(this.verticesArray.subarray(0, this.getUsedCount() * this.props.componentCount), 0)
+    result.setUsedCount(this.usedCount)
+    return result
+  }
 }

@@ -5,21 +5,17 @@ import { surfaceContextInstance } from '../contexts'
 export const useSphereVolumeQuery = (
   mesh: RefObject<Mesh | undefined>
 ) => {
-  return getClipQuery(mesh.current)
+  return mesh.current ? getClipQuery(mesh.current) : undefined
 }
 
 export const getClipQuery = (
-  model: Mesh | BufferGeometry | undefined
+  model: Mesh | BufferGeometry
 ) => {
-  if (model) {
-    const mesh = model as Mesh
-    const geometry = model as BufferGeometry
-    const resolvedGeometry = mesh.isMesh ? mesh.geometry : geometry
+  const mesh = model as Mesh
+  const geometry = model as BufferGeometry
+  const resolvedGeometry = mesh.isMesh ? mesh.geometry : geometry
 
-    return surfaceContextInstance.auxiliaries.useClipQuery(
-      resolvedGeometry
-    )
-  }
-
-  return undefined
+  return surfaceContextInstance.auxiliaries.useClipQuery(
+    resolvedGeometry
+  )
 }

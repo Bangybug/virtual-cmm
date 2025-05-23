@@ -1,15 +1,13 @@
-import { EventDispatcher, Mesh, Vector3, Vector3Like } from 'three'
+import { EventDispatcher, Mesh, Plane, Vector3 } from 'three'
 import { TEntitiesEvents, TNode, TNodeKey } from './types'
 import { projectStore } from '../contexts'
 import { EDialog } from './store/ui-store'
 import { PointsContext } from './points/points-context'
 import { TPointCollection } from './points/types'
 import { CurvesContext } from './curves/curves-context'
-import { useBVH } from '../hooks/use-bvh'
-import { getAdjacencyGraph } from '../hooks/use-adjacency-graph'
-import { ArrowReturnLeft } from 'react-bootstrap-icons'
 import { assertBufferAttribute } from '../cglib/utils'
-import { calculateAveragePlaneNormal } from '../surface/tools/point-select/utils'
+import { calculateAveragePlaneNormal, findClosestPointIndexInFace } from '../surface/tools/point-select/utils'
+import { getClipQuery } from '../hooks/use-clip-query'
 
 let maxNodeId = 1
 
@@ -172,24 +170,15 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   }
 
   makeCrossSection(fromPoints: TNodeKey) {
-    const from = this.assertPoints(fromPoints)
-    if (from.points.getUsedCount() < 2) {
-      console.warn('Insufficient points')
-      return
-    }
-    const mesh = this.#mesh
-    if (!mesh) {
-      console.warn('Mesh not set')
-      return
-    }
-    const bvh = mesh.geometry.boundsTree
-    if (!bvh) {
-      console.warn('Bvh not set')
+    const tools = this.points.withGeometry(fromPoints)
+    if (!tools) {
       return
     }
 
-    const a = from.points.getPointAsV3At(0, new Vector3())
-    const b = from.points.getPointAsV3At(1, new Vector3())
+    const { points, bvh, mesh, faceGraph } = tools
+
+    const a = points.getPointAsV3At(0, new Vector3())
+    const b = points.getPointAsV3At(1, new Vector3())
     const pa = bvh.closestPointToPoint(a)
     const pb = bvh.closestPointToPoint(b)
 
@@ -198,11 +187,16 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
       return
     }
 
-    const adjGraph = getAdjacencyGraph(mesh)!
-    const faceGraph = adjGraph.faceGraph
-
+    let pointIndex = findClosestPointIndexInFace(mesh, pa.point, pa.faceIndex)
     const indices = new Set<number>()
-    const faces = faceGraph.adjacentFaces(pointIndex)
+    let faces = faceGraph.adjacentFaces(pointIndex)
+    for (const f of faces) {
+      indices.add(f.a)
+      indices.add(f.b)
+      indices.add(f.c)
+    }
+    pointIndex = findClosestPointIndexInFace(mesh, pb.point, pb.faceIndex)
+    faces = faceGraph.adjacentFaces(pointIndex)
     for (const f of faces) {
       indices.add(f.a)
       indices.add(f.b)
@@ -211,11 +205,29 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
 
     const positionAttr = assertBufferAttribute(mesh.geometry, 'position')
     const normalAttr = assertBufferAttribute(mesh.geometry, 'normal')
-    tmp.localPoint.fromBufferAttribute(positionAttr, pointIndex)
     const normal = calculateAveragePlaneNormal({
-      indices: tmp.indices,
+      indices,
       positionAttr,
       normalAttr,
     })
+
+    const dir = a.sub(b)
+    const planeNormal = normal.cross(dir).normalize()
+
+    const clipQuery = getClipQuery(mesh)
+    clipQuery.setQueryParams(new Plane().setFromNormalAndCoplanarPoint(planeNormal, b))
+    bvh.shapecast(clipQuery)
+
+
+    const newNode: TNode = {
+      class: EDialog.PointsDialog,
+      label: `Section${maxNodeId}`,
+      key: '', 
+    }
+    
+    this.newNode(newNode)
+    this.points.createFor(newNode.key)
+    this.points.updatePoints(newNode.key, clipQuery.result.segments.clone())
+    this.openNodeDialog(newNode)
   }
 }
