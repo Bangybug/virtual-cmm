@@ -1,5 +1,5 @@
 import { ThreeEvent } from '@react-three/fiber'
-import { BaseEvent, Mesh } from 'three'
+import { BaseEvent, Mesh, Plane } from 'three'
 
 export type TMouseEvents = {
   onPointerDown: (event: ThreeEvent<PointerEvent>) => void
@@ -36,6 +36,12 @@ export type TDisplayMode = {
   showWireframe: boolean
 }
 
+export type TCrossSectionDisplay = {
+  visible: boolean
+  surface: TSurface
+  plane?: Plane
+}
+
 export interface ISurfaceEvent extends BaseEvent {
   type: 'surfaceChanged' | 'registerSurface' | 'unregisterSurface'
   surface: TSurface
@@ -46,4 +52,5 @@ export type TSurfaceEvents =  {
   registerSurface: ISurfaceEvent
   unregisterSurface: ISurfaceEvent
   displayMode: TDisplayMode
+  crossSectionDisplay: TCrossSectionDisplay
 }

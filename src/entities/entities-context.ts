@@ -169,8 +169,8 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   }
 
   makeCrossSection(fromPoints: TNodeKey) {
-    const segments = this.points.createCrossSection(fromPoints)
-    if (!segments) {
+    const result = this.points.createCrossSection(fromPoints)
+    if (!result) {
       return
     }
 
@@ -182,9 +182,14 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     }
 
     this.newNode(newNode)
-    this.points.createFor(newNode.key)
-    this.points.updatePoints(newNode.key, segments)
+    const data = this.points.createFor(newNode.key)
+    data.crossSection = result.crossSection
+    this.points.updatePoints(newNode.key, result.points)
     this.openNodeDialog(newNode)
+  }
+
+  showCrossSection(show: boolean, nodeKey: TNodeKey) {
+    return this.points.showCrossSection(show, nodeKey)
   }
 
   setNodeVisibility(nodeKey: TNodeKey, isVisible: boolean) {
@@ -210,4 +215,6 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
       }
     }
   }
+
+
 }

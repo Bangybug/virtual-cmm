@@ -2,6 +2,7 @@ import {
   Camera,
   EventDispatcher,
   Mesh,
+  Plane,
   Raycaster,
   Vector2,
   Vector3,
@@ -48,6 +49,25 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
   private isCameraUpdating = false
 
   #activeTool?: ITool = undefined
+
+  showCrossSection(mesh: Mesh, visible: boolean, plane?: Plane): boolean {
+    const surface = this.getSurfaceFor(mesh)
+    if (!surface || (visible && !plane)) {
+      return false
+    }
+
+    this.dispatchEvent({
+      type: 'crossSectionDisplay',
+      visible,
+      surface,
+      plane
+    })
+    return true
+  }
+
+  getSurfaceFor(mesh: Mesh) {
+    return this.surfaces.values().find(v => v.mesh === mesh)
+  }
 
   readonly keyboardEvents: TKeyEvents = {
     onKeyPress: (event) => {
@@ -186,13 +206,13 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
 
   enableCamera() {
     if (this.threeState?.controls) {
-      ;(this.threeState.controls as CameraControls).enabled = true
+      ; (this.threeState.controls as CameraControls).enabled = true
     }
   }
 
   disableCamera() {
     if (this.threeState?.controls) {
-      ;(this.threeState.controls as CameraControls).enabled = false
+      ; (this.threeState.controls as CameraControls).enabled = false
     }
   }
 

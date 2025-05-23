@@ -49,14 +49,7 @@ function App() {
       >
         <Scene>
           <SurfaceContextProvider>
-            <MeshSurface surfaceKey={'scan'} fileType={'stl'} url="spoon.stl">
-              <meshStandardMaterial
-                roughness={0.3}
-                metalness={0.2}
-                emissive={0x333333}
-                emissiveIntensity={0.5}
-              />
-            </MeshSurface>
+            <MeshSurface surfaceKey={'scan'} fileType={'stl'} url="spoon.stl" />
           </SurfaceContextProvider>
         </Scene>
         <div

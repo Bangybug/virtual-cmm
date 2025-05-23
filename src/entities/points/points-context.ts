@@ -9,6 +9,7 @@ import { getAdjacencyGraph } from "../../hooks/use-adjacency-graph";
 import { calculateAveragePlaneNormal, findClosestPointIndexInFace } from "../../surface/tools/point-select/utils";
 import { assertBufferAttribute } from "../../cglib/utils";
 import { getClipQuery } from "../../hooks/use-clip-query";
+import { surfaceContextInstance } from "../../contexts";
 
 export class PointsContext {
   #points = new Map<TNodeKey, TPointCollection>()
@@ -35,7 +36,10 @@ export class PointsContext {
         for (let i = 2; i < value.data.length; i += 3) {
           build.addPoint([value.data[i - 2], value.data[i - 1], value.data[i]])
         }
-        this.updatePoints(nodeKey, build)
+        const node = this.updatePoints(nodeKey, build)
+        if (value.crossSection) {
+          node.crossSection = value.crossSection
+        }
       }
     }
   }
@@ -46,7 +50,7 @@ export class PointsContext {
     this.#points.delete(key)
   }
 
-  updatePoints(key: TNodeKey, points: Points) {
+  updatePoints(key: TNodeKey, points: Points): TPointCollection {
     let p = this.#points.get(key)
     if (!p) {
       const pointsRenderable = createPoints(points)
@@ -60,7 +64,7 @@ export class PointsContext {
         pointsRenderable,
         pointKeys: Array.from({ length: points.getUsedCount() }).map((n, i) => i),
         lastPointKey: points.getUsedCount()
-      }
+      } satisfies TPointCollection
       this.#points.set(key, p)
     } else {
       p.points = points
@@ -74,11 +78,13 @@ export class PointsContext {
     if (!p.renderable.parent && this.#mesh) {
       this.#mesh.parent?.add(p.renderable)
     }
+
+    return p
   }
 
   createFor(key: TNodeKey) {
     const points = new Points({ reserveVertices: 32, componentCount: 3 })
-    this.updatePoints(key, points)
+    return this.updatePoints(key, points)
   }
 
   removePointByKey(nodeKey: TNodeKey, pointKey: TPointKey): TPointKey | undefined {
@@ -158,7 +164,7 @@ export class PointsContext {
     return { points: from.points, mesh, bvh, faceGraph }
   }
 
-  createCrossSection(withTwoPoints: TNodeKey): Points | undefined {
+  createCrossSection(withTwoPoints: TNodeKey): Pick<TPointCollection, 'crossSection' | 'points'> | undefined {
     const tools = this.withGeometry(withTwoPoints)
     if (!tools) {
       return
@@ -203,6 +209,23 @@ export class PointsContext {
     clipQuery.setQueryParams(new Plane().setFromNormalAndCoplanarPoint(planeNormal, b))
     bvh.shapecast(clipQuery)
 
-    return clipQuery.result.segments.clone()
+    return {
+      crossSection: {
+        normal: { x: planeNormal.x, y: planeNormal.y, z: planeNormal.z },
+        point: { x: b.x, y: b.y, z: b.z }
+      },
+      points: clipQuery.result.segments.clone()
+    }
+  }
+
+  showCrossSection(show: boolean, nodeKey: TNodeKey): boolean {
+    const data = this.#points.get(nodeKey)
+    if (data?.crossSection && this.#mesh) {
+      const plane = show ? new Plane().setFromNormalAndCoplanarPoint(
+        new Vector3().copy(data.crossSection.normal), 
+        new Vector3().copy(data.crossSection.point)) : undefined
+      return surfaceContextInstance.showCrossSection(this.#mesh, show, plane)
+    }
+    return false
   }
 }

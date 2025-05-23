@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { entitiesContext, surfaceContextInstance } from '../../contexts'
-import { IEntitiesEvent, TNode } from '../types'
+import { ESubclass, IEntitiesEvent, TNode } from '../types'
 import Form from 'react-bootstrap/esm/Form'
 import { EDialog } from '../store/ui-store'
 import { DraggableDialog } from './draggable-dialog'
@@ -13,7 +13,7 @@ import { Vector3 } from 'three'
 import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger'
 import Tooltip from 'react-bootstrap/esm/Tooltip'
 import { Button } from 'react-bootstrap'
-import { AlignMiddle, Bezier } from 'react-bootstrap-icons'
+import { AlignMiddle, Bezier, Vr } from 'react-bootstrap-icons'
 
 export const PointsDialog = () => {
   const [isVisible, setIsVisible] = useRefState(false)
@@ -21,6 +21,7 @@ export const PointsDialog = () => {
   const [label, setLabel] = useState('')
   const [data, setData] = useState<TPointCollection | undefined>(undefined)
   const [selected, setSelected] = useState<number | undefined>()
+  const [crossSectionVisible, setCrossSectionVisible] = useState(false)
 
   useEffect(() => {
     const openDialog = (event: IEntitiesEvent) => {
@@ -117,6 +118,13 @@ export const PointsDialog = () => {
     surfaceContextInstance.invalidate()
   }, [node])
 
+  const toggleCrossSection = useCallback(() => {
+    setCrossSectionVisible((old) => {
+      return (!node.current ||
+        !entitiesContext.showCrossSection(!old, node.current.key)) ? old : !old
+    })
+  }, [node])
+
   if (!isVisible.current || !node.current) {
     return null
   }
@@ -130,23 +138,44 @@ export const PointsDialog = () => {
       onClose={() => setIsVisible(false)}
       footerMenu={
         <>
-          <OverlayTrigger
-            placement={'bottom'}
-            delay={{ show: 250, hide: 400 }}
-            overlay={
-              <Tooltip>Сечение по первым двум точкам и нормали сетки</Tooltip>
-            }
-          >
-            {/* @ts-ignore-next-line */}
-            <Button
-              variant="secondary"
-              id="create-crossection"
-              onClick={createCrossSection}
+          {useNode.subclass === ESubclass.CrossSection && (<>
+            <OverlayTrigger
+              placement={'bottom'}
+              delay={{ show: 250, hide: 400 }}
+              overlay={
+                <Tooltip>Показать сечение</Tooltip>
+              }
             >
-              <AlignMiddle />
-            </Button>
-          </OverlayTrigger>
-          &nbsp;
+              {/* @ts-ignore-next-line */}
+              <Button
+                variant={crossSectionVisible ? "primary" : "secondary"}
+                id="toggle-crossection"
+                onClick={toggleCrossSection}
+              >
+                <Vr />
+              </Button>
+            </OverlayTrigger>
+            &nbsp;</>)}
+
+          {useNode.subclass !== ESubclass.CrossSection && (<>
+            <OverlayTrigger
+              placement={'bottom'}
+              delay={{ show: 250, hide: 400 }}
+              overlay={
+                <Tooltip>Сечение по первым двум точкам и нормали сетки</Tooltip>
+              }
+            >
+              {/* @ts-ignore-next-line */}
+              <Button
+                variant="secondary"
+                id="create-crossection"
+                onClick={createCrossSection}
+              >
+                <AlignMiddle />
+              </Button>
+            </OverlayTrigger>
+            &nbsp;</>)}
+
           <OverlayTrigger
             placement={'bottom'}
             delay={{ show: 250, hide: 400 }}
