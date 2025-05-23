@@ -1,13 +1,10 @@
-import { EventDispatcher, Mesh, Plane, Vector3 } from 'three'
-import { TEntitiesEvents, TNode, TNodeKey } from './types'
-import { projectStore } from '../contexts'
+import { EventDispatcher, Mesh, Object3D, Vector3 } from 'three'
+import { ESubclass, TEntitiesEvents, TNode, TNodeKey } from './types'
+import { projectStore, surfaceContextInstance } from '../contexts'
 import { EDialog } from './store/ui-store'
 import { PointsContext } from './points/points-context'
 import { TPointCollection } from './points/types'
 import { CurvesContext } from './curves/curves-context'
-import { assertBufferAttribute } from '../cglib/utils'
-import { calculateAveragePlaneNormal, findClosestPointIndexInFace } from '../surface/tools/point-select/utils'
-import { getClipQuery } from '../hooks/use-clip-query'
 
 let maxNodeId = 1
 
@@ -48,6 +45,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
         const node = this.#nodes.find((n) => n.key === key)
         if (node) {
           this.updateNode(node)
+          this.setNodeVisibility(node.key, !node.hidden)
         }
       }
 
@@ -56,6 +54,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
         const node = this.#nodes.find((n) => n.key === key)
         if (node) {
           this.updateNode(node)
+          this.setNodeVisibility(node.key, !node.hidden)
         }
       }
     })
@@ -178,6 +177,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     const newNode: TNode = {
       class: EDialog.PointsDialog,
       label: `Section${maxNodeId}`,
+      subclass: ESubclass.CrossSection,
       key: '',
     }
 
@@ -185,5 +185,29 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
     this.points.createFor(newNode.key)
     this.points.updatePoints(newNode.key, segments)
     this.openNodeDialog(newNode)
+  }
+
+  setNodeVisibility(nodeKey: TNodeKey, isVisible: boolean) {
+    const n = this.#nodes.find((n) => n.key === nodeKey)
+    if (n) {
+      if (isVisible) {
+        delete n.hidden
+      } else {
+        n.hidden = true
+      }
+      let renderable: Object3D | undefined
+      switch (n.class) {
+        case EDialog.CurveDialog:
+          renderable = this.curves.data.get(nodeKey)?.renderable
+          break
+        case EDialog.PointsDialog:
+          renderable = this.points.data.get(nodeKey)?.renderable
+          break
+      }
+      if (renderable) {
+        renderable.visible = !n.hidden
+        surfaceContextInstance.invalidate()
+      }
+    }
   }
 }

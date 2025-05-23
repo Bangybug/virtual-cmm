@@ -53,6 +53,11 @@
   border-color: #27a9ea;
 }
 
+.tree > .node.hidden {
+  border-style: dotted;
+  opacity: 0.5;
+}
+
 .point > span {
   max-width: 60px;
   margin-right: 6px;

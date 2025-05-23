@@ -28,6 +28,8 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
 
   private hovered: ThreeEvent<PointerEvent> | undefined = undefined
 
+  private isEnteredSurface = false
+
   private isCameraUpdating = false
 
   #activeTool?: ITool = undefined
@@ -87,12 +89,21 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
     },
 
     onPointerUp: (event: ThreeEvent<PointerEvent>) => {
+      if (!this.isEnteredSurface) {
+        return
+      }
+
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.mouseEvents.onPointerUp(event)
       }
     },
 
     onPointerLeave: () => {
+      if (!this.isEnteredSurface) {
+        return
+      }
+
+      this.isEnteredSurface = false
       this.hovered = undefined
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.mouseEvents.onPointerLeave()
@@ -101,6 +112,12 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
     },
 
     onPointerEnter: (event: ThreeEvent<PointerEvent>) => {
+      if (event.buttons !== 0) {
+        return
+      }
+
+      this.isEnteredSurface = true
+
       this.hovered = event
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.mouseEvents.onPointerEnter?.(event)

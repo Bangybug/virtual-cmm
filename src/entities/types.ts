@@ -3,8 +3,14 @@ import { EDialog } from "./store/ui-store"
 
 export type TNodeKey = string
 
+export enum ESubclass {
+  CrossSection
+}
+
 export type TNode = {
   class: EDialog
+  subclass?: ESubclass
+  hidden?: boolean
   label: string
   key: TNodeKey
 }
