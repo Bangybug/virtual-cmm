@@ -1,15 +1,15 @@
-import { ThreeEvent } from "@react-three/fiber";
-import { ITool, TKeyEvents, TMouseEvents } from "../../types";
-import { Mesh, Vector2, Vector3 } from "three";
-import { circle } from "../../../renderables/circle";
-import { setCursorToPoint } from "./utils";
-import { entitiesContext, surfaceContextInstance } from "../../../contexts";
+import { ThreeEvent } from '@react-three/fiber'
+import { ITool, TKeyEvents, TMouseEvents } from '../../types'
+import { Mesh, Vector2, Vector3 } from 'three'
+import { circle } from '../../../renderables/circle'
+import { setCursorToPoint } from './utils'
+import { entitiesContext, surfaceContextInstance } from '../../../contexts'
 
 export class PointSelect implements ITool {
   private _mesh: Mesh | undefined = undefined
 
   private meshPointAtCursor?: {
-    point: Vector3,
+    point: Vector3
     normal: Vector3
   }
 
@@ -27,7 +27,13 @@ export class PointSelect implements ITool {
 
       if (this._mesh && event.faceIndex) {
         this.updateCursorPoint(
-          setCursorToPoint({ mesh: this._mesh, cursor: circle, point: event.point, faceIndex: event.faceIndex })
+          setCursorToPoint({
+            mesh: this._mesh,
+            cursor: circle,
+            point: event.point,
+            faceIndex: event.faceIndex,
+            alignToMesh: true,
+          })
         )
       }
 
@@ -35,7 +41,10 @@ export class PointSelect implements ITool {
     },
 
     onPointerUp: (event) => {
-      this.screen.set(this.screen.x - event.screenX, this.screen.y - event.screenY)
+      this.screen.set(
+        this.screen.x - event.screenX,
+        this.screen.y - event.screenY
+      )
       if (this.screen.lengthSq() > 0.1) {
         this.screen.set(event.screenX, event.screenY)
         return
@@ -64,11 +73,10 @@ export class PointSelect implements ITool {
       event.stopPropagation()
       this.mouseEvents.onPointerMove(event)
       this.show()
-    }
+    },
   }
 
-  keyboardEvents?: TKeyEvents | undefined;
-
+  keyboardEvents?: TKeyEvents | undefined
 
   on = () => {
     this._mesh = undefined
@@ -94,7 +102,6 @@ export class PointSelect implements ITool {
     return circle.visible
   }
 
-
   private updateCursorPoint(p?: Vector3[]) {
     if (!p) {
       return
@@ -102,7 +109,7 @@ export class PointSelect implements ITool {
     if (!this.meshPointAtCursor) {
       this.meshPointAtCursor = {
         point: p[0],
-        normal: p[1]
+        normal: p[1],
       }
     } else {
       this.meshPointAtCursor.point = p[0]
@@ -113,5 +120,4 @@ export class PointSelect implements ITool {
   private getCursorMeshPoint(point: Vector3): Vector3 {
     return this.meshPointAtCursor?.point || point
   }
-
 }

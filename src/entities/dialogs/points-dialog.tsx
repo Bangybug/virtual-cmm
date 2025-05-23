@@ -70,7 +70,8 @@ export const PointsDialog = () => {
               )
               if (xyz) {
                 surfaceContextInstance.setCursorAtMeshPoint(
-                  new Vector3().fromArray(xyz)
+                  new Vector3().fromArray(xyz),
+                  false
                 )
               }
             }
@@ -132,7 +133,9 @@ export const PointsDialog = () => {
           <OverlayTrigger
             placement={'bottom'}
             delay={{ show: 250, hide: 400 }}
-            overlay={<Tooltip>Сечение по первым двум точкам и нормали сетки</Tooltip>}
+            overlay={
+              <Tooltip>Сечение по первым двум точкам и нормали сетки</Tooltip>
+            }
           >
             {/* @ts-ignore-next-line */}
             <Button

@@ -1,10 +1,25 @@
-import { Camera, EventDispatcher, Mesh, Raycaster, Vector2, Vector3, WebGLRenderer } from "three"
-import { ITool, TDisplayMode, TKeyEvents, TMouseEvents, TSurface, TSurfaceEvents } from "./types"
-import { ThreeEvent } from "@react-three/fiber"
-import { CameraControls } from "@react-three/drei"
-import { SurfaceAuxiliaries } from "./surface-auxiliaries"
-import { setCursorToPoint } from "./tools/point-select/utils"
-import { circle } from "../renderables/circle"
+import {
+  Camera,
+  EventDispatcher,
+  Mesh,
+  Raycaster,
+  Vector2,
+  Vector3,
+  WebGLRenderer,
+} from 'three'
+import {
+  ITool,
+  TDisplayMode,
+  TKeyEvents,
+  TMouseEvents,
+  TSurface,
+  TSurfaceEvents,
+} from './types'
+import { ThreeEvent } from '@react-three/fiber'
+import { CameraControls } from '@react-three/drei'
+import { SurfaceAuxiliaries } from './surface-auxiliaries'
+import { setCursorToPoint } from './tools/point-select/utils'
+import { circle } from '../renderables/circle'
 
 interface IThreeState {
   pointer: Vector2
@@ -12,12 +27,12 @@ interface IThreeState {
   gl: WebGLRenderer
   raycaster: Raycaster
   controls: EventDispatcher | null
-  invalidate: (frames?: number) => void;
+  invalidate: (frames?: number) => void
 }
 
 export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
   readonly displayMode: TDisplayMode = {
-    showWireframe: false
+    showWireframe: false,
   }
 
   readonly auxiliaries = new SurfaceAuxiliaries(this)
@@ -35,19 +50,19 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
   #activeTool?: ITool = undefined
 
   readonly keyboardEvents: TKeyEvents = {
-    onKeyPress: event => {
+    onKeyPress: (event) => {
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.keyboardEvents?.onKeyPress(event)
       }
     },
 
-    onKeyDown: event => {
+    onKeyDown: (event) => {
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.keyboardEvents?.onKeyDown?.(event)
       }
     },
 
-    onKeyUp: event => {
+    onKeyUp: (event) => {
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.keyboardEvents?.onKeyUp?.(event)
       }
@@ -133,7 +148,7 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
 
   registerSurface(surface: TSurface) {
     this.surfaces.set(surface.surfaceKey, surface)
-    this.dispatchEvent({ type: 'registerSurface', surface });
+    this.dispatchEvent({ type: 'registerSurface', surface })
   }
 
   unregisterSurface(surfaceKey: string, mesh: Mesh) {
@@ -171,13 +186,13 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
 
   enableCamera() {
     if (this.threeState?.controls) {
-      (this.threeState.controls as CameraControls).enabled = true
+      ;(this.threeState.controls as CameraControls).enabled = true
     }
   }
 
   disableCamera() {
     if (this.threeState?.controls) {
-      (this.threeState.controls as CameraControls).enabled = false
+      ;(this.threeState.controls as CameraControls).enabled = false
     }
   }
 
@@ -192,7 +207,6 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
   // !this.isCameraUpdating
   // Boolean(this.threeState?.controls && (this.threeState.controls as CameraControls).currentAction || 0 === 0)
 
-
   onCameraStart = () => {
     this.isCameraUpdating = true
   }
@@ -201,7 +215,7 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
     this.isCameraUpdating = false
   }
 
-  setCursorAtMeshPoint(point: Vector3) {
+  setCursorAtMeshPoint(point: Vector3, alignToMesh: boolean = true) {
     const firstSurfaceKey = this.surfaces.keys().next().value
     if (firstSurfaceKey !== undefined) {
       const surface = this.surfaces.get(firstSurfaceKey)
@@ -209,7 +223,13 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
       if (bvh) {
         const hit = bvh.closestPointToPoint(point)
         if (hit) {
-          setCursorToPoint({ mesh: surface.mesh, cursor: circle, faceIndex: hit.faceIndex, point })
+          setCursorToPoint({
+            mesh: surface.mesh,
+            cursor: circle,
+            faceIndex: hit.faceIndex,
+            point,
+            alignToMesh,
+          })
           circle.visible = true
           this.invalidate()
         }

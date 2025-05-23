@@ -34,6 +34,7 @@ type TCursorPosition = {
   mesh: Mesh
   point: Vector3
   faceIndex: number
+  alignToMesh: boolean
 }
 
 export const findClosestPointIndexInFace = (mesh: Mesh, point: Vector3Like, faceIndex: number) => {
@@ -72,6 +73,7 @@ export const setCursorToPoint = ({
   point,
   cursor,
   faceIndex,
+  alignToMesh
 }: TCursorPosition) => {
   const bvh = mesh.geometry.boundsTree
   if (!bvh) {
@@ -99,7 +101,7 @@ export const setCursorToPoint = ({
     normalAttr
   })
 
-  cursor.position.copy(tmp.localPoint)
+  cursor.position.copy(alignToMesh ? tmp.localPoint : point)
   cursor.quaternion.setFromUnitVectors(Z, normal)
 
   return [tmp.localPoint, normal]

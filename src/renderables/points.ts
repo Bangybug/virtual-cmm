@@ -24,9 +24,12 @@ export const createPoints = (
     transparent: true,
     // alphaTest: 0.5,
     vertexColors: false,
-    depthTest: false,
     opacity: 0.7,
     color,
+    depthTest: false,
+    // polygonOffset: true,
+    // polygonOffsetFactor: 1.1,
+    // polygonOffsetUnits: 0.1
   })
   const result = new Points(geometry, material)
   result.frustumCulled = false

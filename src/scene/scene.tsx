@@ -11,6 +11,7 @@ export const Scene = (props: PropsWithChildren) => {
     gl={{ alpha: false, powerPreference: 'default' }}
     onCreated={({ gl }) => {
       gl.setClearColor(VIEWER_CLEAR_COLOR)
+      gl.localClippingEnabled = true
     }}
   >
     {props.children}

@@ -53,7 +53,7 @@ function App() {
               <meshStandardMaterial
                 roughness={0.3}
                 metalness={0.2}
-                emissive={'#222222'}
+                emissive={0x333333}
                 emissiveIntensity={0.5}
               />
             </MeshSurface>
