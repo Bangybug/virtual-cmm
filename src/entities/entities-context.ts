@@ -129,7 +129,7 @@ export class EntitiesContext extends EventDispatcher<TEntitiesEvents> {
   }
 
   private usePointsNode(): TNode {
-    if (this.#openNode?.class === EDialog.PointsDialog) {
+    if (this.#openNode?.class === EDialog.PointsDialog && !this.#openNode.subclass) {
       return this.#openNode
     }
     const newNode: TNode = {

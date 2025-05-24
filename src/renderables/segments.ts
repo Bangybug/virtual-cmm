@@ -21,8 +21,8 @@ export const createSegments = (
     depthTest: false,
     depthWrite: false,
   })
-  // const result = isSeparate ? new LineSegments(geometry, material) : new Line(geometry, material)
-  const result = new LineSegments(geometry, material)
+  const result = isSeparate ? new LineSegments(geometry, material) : new Line(geometry, material)
+  // const result = new LineSegments(geometry, material)
   result.frustumCulled = false
   result.renderOrder = 999
   geometry.setDrawRange(0, from.getUsedCount())
