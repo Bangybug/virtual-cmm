@@ -1,4 +1,4 @@
-import { BufferGeometry, Material, Mesh, NotEqualStencilFunc, Object3D, ReplaceStencilOp, Plane as ThreePlane } from "three"
+import { BufferGeometry, Material, Mesh, Object3D, Plane as ThreePlane } from "three"
 import { IModelProps, MeshFile } from "../mesh/mesh-file"
 import { createRef, PropsWithChildren, Suspense, useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useBVH } from "../hooks/use-bvh"
@@ -8,7 +8,6 @@ import { SharedGeometryModel } from "../renderables/shared-geometry"
 import { useAdjacencyGraph } from "../hooks/use-adjacency-graph"
 import { useRefState } from "../hooks/use-ref-state"
 import { SurfaceStencilClip } from "./surface-stencil-clip"
-import { Plane } from '@react-three/drei'
 
 type TMesh = Mesh<BufferGeometry, Material>
 

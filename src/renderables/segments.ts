@@ -3,13 +3,15 @@ import {
   BufferGeometry,
   Line,
   LineBasicMaterial,
+  LineSegments,
   Object3D,
 } from 'three'
 import { Points as BuilderPoints } from '../cglib/builders/points'
 
 export const createSegments = (
   from: BuilderPoints,
-  color: number = 0x4d4dff
+  color: number = 0x4d4dff,
+  isSeparate?: boolean
 ) => {
   const geometry = new BufferGeometry()
   const pos = new BufferAttribute(from.vertices, 3)
@@ -19,7 +21,8 @@ export const createSegments = (
     depthTest: false,
     depthWrite: false,
   })
-  const result = new Line(geometry, material)
+  // const result = isSeparate ? new LineSegments(geometry, material) : new Line(geometry, material)
+  const result = new LineSegments(geometry, material)
   result.frustumCulled = false
   result.renderOrder = 999
   geometry.setDrawRange(0, from.getUsedCount())

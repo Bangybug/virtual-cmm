@@ -21,11 +21,13 @@ export class ClipQuery {
 
   result = {
     segments: new Points({ reserveVertices: 32000, componentCount: 3 }),
+    totalAdded: 0
   }
 
   public setQueryParams(localPlane: Plane) {
     this.#query.localPlane.copy(localPlane)
     this.result.segments.setUsedCount(0)
+    this.result.totalAdded = 0
   }
 
   public intersectsBounds = (
@@ -74,8 +76,8 @@ export class ClipQuery {
     // When the plane passes through a vertex and one of the edges of the triangle, there will be three intersections, two of which must be repeated
     if (count === 3) {
       segments.getPointAsV3At(segments.getUsedCount() - 3, tempVector1)
-      segments.getPointAsV3At(segments.getUsedCount() - 2, tempVector1)
-      segments.getPointAsV3At(segments.getUsedCount() - 1, tempVector1)
+      segments.getPointAsV3At(segments.getUsedCount() - 2, tempVector2)
+      segments.getPointAsV3At(segments.getUsedCount() - 1, tempVector3)
       // If the last point is a duplicate intersection
       if (tempVector3.equals(tempVector1) || tempVector3.equals(tempVector2)) {
         segments.setUsedCount(segments.getUsedCount() - 1)
@@ -87,6 +89,7 @@ export class ClipQuery {
           segments.getUsedCount() - 2,
           tempVector3.toArray(tempVector3Tuple)
         )
+        segments.setUsedCount(segments.getUsedCount() - 1)
         count--
       }
     }
@@ -95,6 +98,8 @@ export class ClipQuery {
     // more gracefully.
     if (count !== 2) {
       segments.setUsedCount(segments.getUsedCount() - count)
+    } else {
+      this.result.totalAdded += 2
     }
 
     return false

@@ -209,6 +209,8 @@ export class PointsContext {
     clipQuery.setQueryParams(new Plane().setFromNormalAndCoplanarPoint(planeNormal, b))
     bvh.shapecast(clipQuery)
 
+    // console.log(clipQuery.result.totalAdded, clipQuery.result.segments.getUsedCount())
+
     return {
       crossSection: {
         normal: { x: planeNormal.x, y: planeNormal.y, z: planeNormal.z },
