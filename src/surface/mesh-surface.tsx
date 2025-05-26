@@ -92,7 +92,7 @@ export const MeshSurface: React.FC<
       <Suspense>
         <MeshFile<TMesh>
           {...restProps}
-          {...surfaceContextInstance.mouseEvents}
+          {...surfaceContextInstance.surfaceEvents}
           onLoad={({ mesh }) => {
             surfaceContextInstance.registerSurface({
               mesh,

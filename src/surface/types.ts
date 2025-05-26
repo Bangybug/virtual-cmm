@@ -2,14 +2,19 @@ import { ThreeEvent } from '@react-three/fiber'
 import { BaseEvent, Mesh, Plane } from 'three'
 
 export type TMouseEvents = {
-  onPointerDown: (event: ThreeEvent<PointerEvent>) => void
-  onPointerMove: (event: ThreeEvent<PointerEvent>) => void
+  // surface events
+  onPointerDown?: (event: ThreeEvent<PointerEvent>) => void
+  onPointerMove?: (event: ThreeEvent<PointerEvent>) => void
+  onPointerUp?: (event: ThreeEvent<PointerEvent>) => void
+  onPointerLeave?: () => void
+  onPointerEnter?: (event: ThreeEvent<PointerEvent>) => void
+
+  // canvas events
   onPointerCanvasMove?: (event: React.PointerEvent<HTMLDivElement>) => void
   onPointerCanvasOut?: () => void
   onPointerUpCanvas?: (event: React.PointerEvent<HTMLDivElement>) => void
-  onPointerUp: (event: ThreeEvent<PointerEvent>) => void
-  onPointerLeave: () => void
-  onPointerEnter?: (event: ThreeEvent<PointerEvent>) => void
+  onPointerDownCanvas?: (event: React.PointerEvent<HTMLDivElement>) => void
+  onWheelCanvas?: (event: React.WheelEvent<HTMLDivElement>) => void
 }
 
 export type TKeyEvents = {

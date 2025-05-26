@@ -89,19 +89,14 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
     },
   }
 
+  //
+  // canvas events
+  //
   readonly mouseEvents: TMouseEvents = {
-    onPointerDown: (event: ThreeEvent<PointerEvent>) => {
-      if (this.#activeTool && this.isActionAllowed()) {
-        this.#activeTool.mouseEvents.onPointerDown(event)
-        this.threeState?.invalidate(10)
-      }
-    },
-
-    onPointerMove: (event: ThreeEvent<PointerEvent>) => {
-      this.hovered = event
-      if (this.#activeTool && this.isActionAllowed()) {
-        this.#activeTool.mouseEvents.onPointerMove(event)
-        this.threeState?.invalidate(10)
+    onWheelCanvas: (event) => {
+      if (this.isEnteredSurface) {
+        this.mouseEvents.onPointerCanvasOut?.()
+        this.enableCamera()
       }
     },
 
@@ -111,15 +106,36 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
       }
     },
 
+    onPointerUpCanvas: (event: React.PointerEvent<HTMLDivElement>) => {
+      if (this.#activeTool && this.isActionAllowed()) {
+        this.#activeTool.mouseEvents.onPointerUpCanvas?.(event)
+      }
+    },
+
     onPointerCanvasOut: () => {
+      this.isEnteredSurface = false
       if (this.#activeTool && this.isActionAllowed()) {
         this.#activeTool.mouseEvents.onPointerCanvasOut?.()
       }
     },
+  }
 
-    onPointerUpCanvas: (event: React.PointerEvent<HTMLDivElement>) => {
+  //
+  // events produced after raycasting the surface
+  //
+  readonly surfaceEvents: TMouseEvents = {
+    onPointerDown: (event: ThreeEvent<PointerEvent>) => {
       if (this.#activeTool && this.isActionAllowed()) {
-        this.#activeTool.mouseEvents.onPointerUpCanvas?.(event)
+        this.#activeTool.mouseEvents.onPointerDown?.(event)
+        this.threeState?.invalidate(10)
+      }
+    },
+
+    onPointerMove: (event: ThreeEvent<PointerEvent>) => {
+      this.hovered = event
+      if (this.#activeTool && this.isActionAllowed()) {
+        this.#activeTool.mouseEvents.onPointerMove?.(event)
+        this.threeState?.invalidate(10)
       }
     },
 
@@ -129,7 +145,7 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
       }
 
       if (this.#activeTool && this.isActionAllowed()) {
-        this.#activeTool.mouseEvents.onPointerUp(event)
+        this.#activeTool.mouseEvents.onPointerUp?.(event)
       }
     },
 
@@ -141,7 +157,7 @@ export class SurfaceContext extends EventDispatcher<TSurfaceEvents> {
       this.isEnteredSurface = false
       this.hovered = undefined
       if (this.#activeTool && this.isActionAllowed()) {
-        this.#activeTool.mouseEvents.onPointerLeave()
+        this.#activeTool.mouseEvents.onPointerLeave?.()
       }
       this.enableCamera()
     },

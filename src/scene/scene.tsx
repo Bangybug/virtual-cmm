@@ -5,8 +5,15 @@ import { GizmoHelper, GizmoViewcube, OrbitControls, OrthographicCamera } from "@
 import { surfaceContextInstance } from "../contexts"
 
 export const Scene = (props: PropsWithChildren) => {
+  const { mouseEvents } = surfaceContextInstance
+
   return (<Canvas
     frameloop="demand"
+    onPointerMove={mouseEvents.onPointerCanvasMove}
+    onPointerOut={mouseEvents.onPointerCanvasOut}
+    onPointerUp={mouseEvents.onPointerUpCanvas}
+    onPointerDown={mouseEvents.onPointerDownCanvas}
+    onWheel={mouseEvents.onWheelCanvas}
     style={{ background: VIEWER_CLEAR_COLOR, zIndex: 0 }}
     gl={{ alpha: false, powerPreference: 'default' }}
     onCreated={({ gl }) => {
